@@ -1915,5 +1915,60 @@ textarea:focus {
     .recovery-grid,
     .hotline-grid {
         grid-template-columns: 1fr;
-    }
 }
+
+/* ==========================================================================
+   UTILITY & KUSTOMISASI LOGIN SIDEBAR
+   ========================================================================== */
+.d-none {
+    display: none !important;
+}
+
+.sidebar-login-prompt {
+    margin-bottom: 12px;
+}
+
+.btn-sidebar-login {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    color: var(--text-main);
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-family: var(--font-primary);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.btn-sidebar-login:hover {
+    background: rgba(0, 210, 255, 0.05);
+    border-color: var(--tech-cyan);
+    color: var(--tech-cyan);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.15);
+}
+
+.btn-logout-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: auto;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.btn-logout-icon:hover {
+    color: var(--safety-orange);
+    transform: scale(1.1);
+}
+

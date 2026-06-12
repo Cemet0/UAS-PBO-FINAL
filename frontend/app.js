@@ -392,13 +392,52 @@ function initAuthModal() {
     const openBtn = document.getElementById('btn-login-trigger');
     const closeBtn = document.getElementById('btn-close-login-modal');
     
-    openBtn.addEventListener('click', () => modal.classList.add('active'));
+    // Cek status login saat pertama kali dimuat
+    const checkLoginStatus = () => {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        updateLoginStateUI(isLoggedIn);
+    };
+
+    openBtn.addEventListener('click', () => {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (isLoggedIn) {
+            handleLogoutFlow();
+        } else {
+            modal.classList.add('active');
+        }
+    });
+    
     closeBtn.addEventListener('click', () => modal.classList.remove('active'));
     
     // Klik di luar area modal untuk menutup
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
     });
+
+    // Pemicu login dari sidebar
+    const sidebarLoginTrigger = document.getElementById('btn-sidebar-login-trigger');
+    if (sidebarLoginTrigger) {
+        sidebarLoginTrigger.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+    }
+
+    // Tombol logout di sidebar
+    const sidebarLogoutBtn = document.getElementById('btn-sidebar-logout');
+    if (sidebarLogoutBtn) {
+        sidebarLogoutBtn.addEventListener('click', () => {
+            handleLogoutFlow();
+        });
+    }
+
+    function handleLogoutFlow() {
+        if (confirm('Apakah Anda yakin ingin keluar dari akun?')) {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userRole');
+            updateLoginStateUI(false);
+        }
+    }
 
     // Handle Auth Tabs (Masuk vs Daftar)
     const tabLogin = document.getElementById('auth-tab-login');
@@ -446,9 +485,66 @@ function initAuthModal() {
     document.getElementById('form-auth-submit').addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('auth-email').value;
-        alert(`Autentikasi berhasil untuk: ${email}. Akses portal darurat diizinkan.`);
+        
+        // Ambil peran yang dipilih
+        const isRelawan = roleRelawan.classList.contains('active');
+        const roleName = isRelawan ? 'Relawan / Donatur' : 'Korban';
+        
+        alert(`Autentikasi berhasil sebagai ${roleName} untuk: ${email}. Akses portal darurat diizinkan.`);
         modal.classList.remove('active');
+
+        // Simpan state login
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userRole', roleName);
+        
+        updateLoginStateUI(true);
     });
+
+    function updateLoginStateUI(isLoggedIn) {
+        const userBadge = document.getElementById('sidebar-user-badge');
+        const loginPrompt = document.getElementById('sidebar-login-prompt');
+        
+        if (isLoggedIn) {
+            userBadge.classList.remove('d-none');
+            loginPrompt.classList.add('d-none');
+            
+            const email = localStorage.getItem('userEmail') || 'Budi Santoso';
+            const role = localStorage.getItem('userRole') || 'Korban';
+            const userNameEl = userBadge.querySelector('.user-name');
+            const userIdEl = userBadge.querySelector('.user-id');
+            
+            if (email.includes('@')) {
+                const namePart = email.split('@')[0];
+                const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+                userNameEl.textContent = displayName;
+                userIdEl.textContent = role; // Tampilkan peran user (Korban atau Relawan)
+            } else {
+                userNameEl.textContent = 'Budi Santoso';
+                userIdEl.textContent = 'ID: EL-99203';
+            }
+            
+            // Ubah tombol di navbar atas jadi logout
+            if (openBtn) {
+                openBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Keluar';
+                openBtn.style.backgroundColor = 'var(--border-color)';
+                openBtn.style.boxShadow = 'none';
+            }
+        } else {
+            userBadge.classList.add('d-none');
+            loginPrompt.classList.remove('d-none');
+            
+            // Kembalikan tombol di navbar atas jadi masuk
+            if (openBtn) {
+                openBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Masuk / Daftar Akun Korban';
+                openBtn.style.backgroundColor = 'var(--safety-orange)';
+                openBtn.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.2)';
+            }
+        }
+    }
+
+    // Panggil saat inisialisasi
+    checkLoginStatus();
 }
 
 

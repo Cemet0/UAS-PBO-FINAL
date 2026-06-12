@@ -53,13 +53,26 @@
 
             <!-- STATUS SISTEM & USER PROFILE -->
             <div class="sidebar-footer">
-                <div class="user-profile-badge" id="sidebar-user-badge">
+                <!-- Tampilan profil ketika sudah login (default tersembunyi dengan d-none) -->
+                <div class="user-profile-badge d-none" id="sidebar-user-badge">
                     <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Avatar Pengguna" class="user-avatar">
                     <div class="user-info">
                         <span class="user-name">Budi Santoso</span>
                         <span class="user-id">ID: EL-99203</span>
                     </div>
+                    <button class="btn-logout-icon" id="btn-sidebar-logout" title="Keluar Akun">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
                 </div>
+
+                <!-- Tampilan tombol login ketika belum login -->
+                <div class="sidebar-login-prompt" id="sidebar-login-prompt">
+                    <button class="btn-sidebar-login" id="btn-sidebar-login-trigger">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Masuk Akun</span>
+                    </button>
+                </div>
+
                 <div class="system-status-indicator">
                     <span class="status-dot green"></span>
                     <span class="status-text">Semua Sistem Nominal</span>
