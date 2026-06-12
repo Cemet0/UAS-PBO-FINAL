@@ -1,0 +1,23 @@
+# Direktori Build Java/Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Folder Maven Biner Lokal (Sangat penting agar tidak diunggah ke Git)
+apache-maven-*/
+
+# Pengaturan IDE & Editor
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# Berkas Sistem Operasi
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmberLord - Portal Logistik & Respons Bencana Taktis</title>
+    <!-- Link Font Google Modern (Outfit dan Orbitron untuk Gamer/Taktis) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Link FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- CONTAINER UTAMA -->
+    <div class="app-container">
+
+        <!-- SIDEBAR KIRI TETAP (FIXED SIDEBAR) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>EmberLord</h1>
+                    <span>EMERGENCY PORTAL</span>
+                </div>
+            </div>
+
+            <!-- TAUTAN NAVIGASI -->
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-target="view-map" id="nav-map">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <span>Peta Informasi & Posko</span>
+                    </li>
+                    <li class="nav-item" data-target="view-donation" id="nav-donation">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                        <span>Portal Donasi Terbuka</span>
+                    </li>
+                    <li class="nav-item" data-target="view-recovery" id="nav-recovery">
+                        <i class="fa-solid fa-file-shield"></i>
+                        <span>Pusat Pemulihan Dokumen</span>
+                    </li>
+                    <li class="nav-item" data-target="view-hotline" id="nav-hotline">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <span>Hotline Pengaduan</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- STATUS SISTEM & USER PROFILE -->
+            <div class="sidebar-footer">
+                <div class="user-profile-badge" id="sidebar-user-badge">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Avatar Pengguna" class="user-avatar">
+                    <div class="user-info">
+                        <span class="user-name">Budi Santoso</span>
+                        <span class="user-id">ID: EL-99203</span>
+                    </div>
+                </div>
+                <div class="system-status-indicator">
+                    <span class="status-dot green"></span>
+                    <span class="status-text">Semua Sistem Nominal</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- AREA KONTEN UTAMA (KANAN) -->
+        <main class="main-content">
+            
+            <!-- NAVBAR ATAS (TOP NAVBAR) -->
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="global-search" placeholder="Cari posko, kebutuhan logistik, atau data...">
+                    </div>
+                </div>
+                <div class="navbar-right">
+                    <div class="notification-bell" id="btn-notification">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <button class="btn-auth-trigger" id="btn-login-trigger">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk / Daftar Akun Korban
+                    </button>
+                </div>
+            </header>
+
+            <!-- CORE VIEWPORT PANEL -->
+            <div class="dashboard-viewport">
+
+                <!-- 1. VIEW: PETA INFORMASI & POSKO (DEFAULT) -->
+                <section class="dashboard-view active" id="view-map">
+                    <!-- Widget Stats Atas -->
+                    <div class="grid-stats-cards">
+                        <div class="stat-info-card border-cyan">
+                            <div class="stat-icon cyan-text"><i class="fa-solid fa-utensils"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-title">DAPUR UMUM</span>
+                                <span class="stat-value">Sarapan: 06:00 - 08:30</span>
+                                <span class="stat-desc">Tersedia di 12 titik posko utama</span>
+                            </div>
+                        </div>
+                        <div class="stat-info-card border-orange">
+                            <div class="stat-icon orange-text"><i class="fa-solid fa-house-medical-flag"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-title">KESEHATAN</span>
+                                <span class="stat-value">RSUD & Puskesmas Siaga</span>
+                                <span class="stat-desc">Layanan medis 24 jam gratis bagi korban</span>
+                            </div>
+                        </div>
+                        <div class="stat-info-card border-cyan">
+                            <div class="stat-icon cyan-text"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-title">LOGISTIK</span>
+                                <span class="stat-value">Distribusi Pakaian & Obat</span>
+                                <span class="stat-desc">Jadwal: 10:00 & 16:00 di Balai Desa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout Peta & Kategori -->
+                    <div class="dashboard-grid-main">
+                        <!-- Peta Taktis Mode Gelap -->
+                        <div class="card-component map-container">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa-solid fa-map"></i> Peta Zona Dampak & Posko Evakuasi</h3>
+                                <div class="map-legends">
+                                    <span class="legend-item"><span class="dot red-dot"></span> Zona Bahaya Api</span>
+                                    <span class="legend-item"><span class="dot blue-dot"></span> Posko Aman</span>
+                                </div>
+                            </div>
+                            <div class="map-canvas-wrapper">
+                                <!-- Simulasi Peta Taktis SVG -->
+                                <svg viewBox="0 0 800 500" class="tactical-map-svg" id="tactical-map">
+                                    <!-- Jalanan -->
+                                    <path d="M 50,50 L 750,50 M 50,250 L 750,250 M 50,450 L 750,450 M 150,50 L 150,450 M 400,50 L 400,450 M 650,50 L 650,450" stroke="#1E293B" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
+                                    <!-- Sungai / Rintangan -->
+                                    <path d="M 50,150 Q 200,200 400,120 T 750,180" stroke="#00D2FF" stroke-width="4" fill="none" opacity="0.3"/>
+                                    
+                                    <!-- Zona Bahaya Api (Orange/Red Glowing Pulse Circles) -->
+                                    <circle cx="380" cy="230" r="70" class="pulse-danger-zone" fill="rgba(255, 107, 0, 0.25)" stroke="#FF6B00" stroke-width="2" />
+                                    <circle cx="380" cy="230" r="10" fill="#FF6B00"/>
+                                    <text x="380" y="150" fill="#FF6B00" font-family="Orbitron" font-size="12" text-anchor="middle" font-weight="bold">ZONA BAHAYA UTAMA</text>
+
+                                    <!-- Posko-posko Aman (Pins) -->
+                                    <!-- Posko 1: Balai Desa -->
+                                    <g class="map-pin" transform="translate(180, 100)">
+                                        <circle cx="0" cy="0" r="8" fill="#00D2FF" class="pulse-pin"/>
+                                        <text x="12" y="4" fill="#FFFFFF" font-size="10" font-family="Outfit">Posko Balai Desa</text>
+                                    </g>
+                                    <!-- Posko 2: GOR Pemuda -->
+                                    <g class="map-pin" transform="translate(600, 320)">
+                                        <circle cx="0" cy="0" r="8" fill="#00D2FF" class="pulse-pin"/>
+                                        <text x="12" y="4" fill="#FFFFFF" font-size="10" font-family="Outfit">GOR Pemuda</text>
+                                    </g>
+                                    <!-- Posko 3: Masjid Al-Ikhlas -->
+                                    <g class="map-pin" transform="translate(520, 90)">
+                                        <circle cx="0" cy="0" r="8" fill="#00D2FF" class="pulse-pin"/>
+                                        <text x="12" y="4" fill="#FFFFFF" font-size="10" font-family="Outfit">Masjid Al-Ikhlas</text>
+                                    </g>
+                                </svg>
+                                
+                                <!-- Zoom Control -->
+                                <div class="map-controls">
+                                    <button class="map-control-btn"><i class="fa-solid fa-plus"></i></button>
+                                    <button class="map-control-btn"><i class="fa-solid fa-minus"></i></button>
+                                    <button class="map-control-btn"><i class="fa-solid fa-layer-group"></i></button>
+                                    <button class="map-control-btn"><i class="fa-solid fa-crosshairs"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kapasitas Posko Terdekat -->
+                    <div class="posko-capacity-section">
+                        <div class="section-title-wrapper">
+                            <h4 class="section-title">Kapasitas Posko Terdekat</h4>
+                            <span class="see-all-link">Lihat Semua Posko <i class="fa-solid fa-arrow-right"></i></span>
+                        </div>
+                        <div class="grid-posko-cards">
+                            <!-- Posko 1 -->
+                            <div class="posko-card">
+                                <div class="posko-header">
+                                    <span class="posko-name">Posko Balai Desa</span>
+                                    <span class="badge-status status-danger">HAMPIR PENUH</span>
+                                </div>
+                                <div class="posko-body">
+                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i> Aman  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <div class="capacity-bar-wrapper">
+                                        <div class="capacity-info">
+                                            <span>Sisa Kapasitas</span>
+                                            <span class="value-highlight text-orange">15 Slot</span>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill fill-danger" style="width: 92%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Posko 2 -->
+                            <div class="posko-card">
+                                <div class="posko-header">
+                                    <span class="posko-name">GOR Pemuda</span>
+                                    <span class="badge-status status-warning">NORMAL</span>
+                                </div>
+                                <div class="posko-body">
+                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i> Aman  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <div class="capacity-bar-wrapper">
+                                        <div class="capacity-info">
+                                            <span>Sisa Kapasitas</span>
+                                            <span class="value-highlight text-cyan">142 Slot</span>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill fill-warning" style="width: 60%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Posko 3 -->
+                            <div class="posko-card">
+                                <div class="posko-header">
+                                    <span class="posko-name">Masjid Al-Ikhlas</span>
+                                    <span class="badge-status status-success">LELUASA</span>
+                                </div>
+                                <div class="posko-body">
+                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i> Aman  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <div class="capacity-bar-wrapper">
+                                        <div class="capacity-info">
+                                            <span>Sisa Kapasitas</span>
+                                            <span class="value-highlight text-cyan">300+ Slot</span>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill fill-success" style="width: 25%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Posko 4 -->
+                            <div class="posko-card">
+                                <div class="posko-header">
+                                    <span class="posko-name">SDN 01 Harapan</span>
+                                    <span class="badge-status status-full">PENUH</span>
+                                </div>
+                                <div class="posko-body">
+                                    <p class="posko-status-text"><i class="fa-solid fa-triangle-exclamation text-orange"></i> Terbatas  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <div class="capacity-bar-wrapper">
+                                        <div class="capacity-info">
+                                            <span>Sisa Kapasitas</span>
+                                            <span class="value-highlight text-red">0 Slot</span>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill fill-full" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. VIEW: PORTAL DONASI TERBUKA -->
+                <section class="dashboard-view" id="view-donation">
+                    <div class="view-header">
+                        <h2>Portal Donasi & Transparansi</h2>
+                        <p>Transparansi penuh untuk pemulihan bencana. Pantau kebutuhan logistik secara real-time dan lacak setiap bantuan barang Anda.</p>
+                    </div>
+
+                    <div class="donation-grid">
+                        <!-- Kebutuhan Logistik Mendesak (Kiri) -->
+                        <div class="card-component">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa-solid fa-list-check"></i> Kebutuhan Logistik Mendesak <span class="live-updates-tag">Live Updates</span></h3>
+                            </div>
+                            <div class="logistics-needs-list">
+                                <div class="need-item">
+                                    <div class="need-header">
+                                        <span>50 Popok Bayi (Pack)</span>
+                                        <span class="need-percent">70% terpenuhi</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar-fill" style="width: 70%;"></div>
+                                    </div>
+                                    <span class="need-details">Dibutuhkan di: Posko Sektor A (Pengungsian Balita)</span>
+                                </div>
+                                <div class="need-item">
+                                    <div class="need-header">
+                                        <span>100 Selimut Hangat</span>
+                                        <span class="need-percent">40% terpenuhi</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar-fill" style="width: 40%;"></div>
+                                    </div>
+                                    <span class="need-details">Prioritas: Korban Lansia di Sektor C</span>
+                                </div>
+                                <div class="need-item">
+                                    <div class="need-header">
+                                        <span>200 Paket Sembako Ready-to-Eat</span>
+                                        <span class="need-percent">85% terpenuhi</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar-fill" style="width: 85%;"></div>
+                                    </div>
+                                    <span class="need-details">Dibutuhkan segera untuk tim relawan lapangan</span>
+                                </div>
+                                <div class="need-item">
+                                    <div class="need-header">
+                                        <span>15 Tenda Darurat Keluarga</span>
+                                        <span class="need-percent">20% terpenuhi</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar-fill" style="width: 20%;"></div>
+                                    </div>
+                                    <span class="need-details">Kekurangan kritis akibat curah hujan tinggi</span>
+                                </div>
+                                <button class="btn-secondary-outline w-100 mt-3">Lihat Daftar Lengkap Logistik <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Form Komitmen Donasi (Kanan) -->
+                        <div class="card-component">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa-solid fa-heart-circle-plus"></i> Komitmen Donasi</h3>
+                            </div>
+                            <!-- Form Tab Selectors -->
+                            <div class="form-tabs">
+                                <button class="form-tab-btn active" id="tab-donasi-barang">Barang Fisik</button>
+                                <button class="form-tab-btn" id="tab-donasi-dana">Dana Tunai</button>
+                            </div>
+
+                            <!-- Form Barang Fisik (CRUD Create) -->
+                            <form id="form-donasi" class="donation-form-wrapper">
+                                <input type="hidden" id="donasi-id"> <!-- Untuk mode Edit/Update -->
+                                <div class="form-group">
+                                    <label for="donasi-donatur">Nama Donatur / Organisasi</label>
+                                    <input type="text" id="donasi-donatur" placeholder="Masukkan nama lengkap Anda..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donasi-barang">Nama Barang Logistik</label>
+                                    <select id="donasi-barang" required>
+                                        <option value="" disabled selected>Pilih jenis barang...</option>
+                                        <option value="Popok Bayi (Pack)">Popok Bayi (Pack)</option>
+                                        <option value="Selimut Hangat">Selimut Hangat</option>
+                                        <option value="Paket Sembako Ready-to-Eat">Paket Sembako Ready-to-Eat</option>
+                                        <option value="Tenda Darurat Keluarga">Tenda Darurat Keluarga</option>
+                                        <option value="Obat-obatan Medis">Obat-obatan Medis</option>
+                                        <option value="Pakaian Layak Pakai">Pakaian Layak Pakai</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="donasi-jumlah">Jumlah (Kuantitas)</label>
+                                        <input type="number" id="donasi-jumlah" min="1" placeholder="Contoh: 10" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="donasi-status">Status Pengiriman</label>
+                                        <select id="donasi-status">
+                                            <option value="Pending">Pending (Menunggu)</option>
+                                            <option value="Diproses">Diproses (Pengemasan)</option>
+                                            <option value="Dikirim">Dikirim (Perjalanan)</option>
+                                            <option value="Diterima">Diterima (Di Posko)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary-orange w-100" id="btn-submit-donasi">
+                                    <i class="fa-solid fa-paper-plane"></i> KIRIM DONASI SEKARANG
+                                </button>
+                                <button type="button" class="btn-secondary-outline w-100 mt-2 d-none" id="btn-cancel-edit-donasi">
+                                    Batal Edit
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Buku Kas Digital & Live Tracking Database (CRUD Read & Update & Delete) -->
+                    <div class="transparency-section mt-4">
+                        <div class="card-component">
+                            <div class="card-header justify-between">
+                                <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan Donasi Barang (Real-Time CRUD)</h3>
+                                <div class="header-actions">
+                                    <button class="btn-refresh" id="btn-refresh-donasi"><i class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="custom-table" id="table-donasi">
+                                    <thead>
+                                        <tr>
+                                            <th>ID Donasi</th>
+                                            <th>Nama Donatur</th>
+                                            <th>Jenis Barang</th>
+                                            <th>Jumlah</th>
+                                            <th>Status Pengiriman</th>
+                                            <th class="text-right">Aksi Manajemen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-donasi">
+                                        <!-- Data akan diisi secara dinamis oleh JavaScript fetch -->
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">Memuat data dari server backend...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buku Kas Finansial (Tampilan Visual Transparansi Keuangan) -->
+                    <div class="financial-section mt-4">
+                        <h4 class="section-title">Buku Kas Digital & Transparansi Finansial</h4>
+                        <div class="financial-stats-grid">
+                            <div class="fin-card">
+                                <span class="fin-title">TOTAL DONASI MASUK</span>
+                                <span class="fin-value text-cyan">Rp 1.450.230.000</span>
+                                <span class="fin-growth"><i class="fa-solid fa-arrow-trend-up"></i> +12% dibanding kemarin</span>
+                            </div>
+                            <div class="fin-card">
+                                <span class="fin-title">ALOKASI DANA</span>
+                                <div class="allocation-graph-sim">
+                                    <div class="allocation-circle">
+                                        <span class="alloc-val">1.45B</span>
+                                    </div>
+                                    <div class="allocation-legend">
+                                        <div><span class="legend-dot logistik-bg"></span> 60% Logistik</div>
+                                        <div><span class="legend-dot medis-bg"></span> 25% Medis</div>
+                                        <div><span class="legend-dot operasional-bg"></span> 15% Operasional</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fin-card">
+                                <span class="fin-title">TOTAL PENGELUARAN</span>
+                                <span class="fin-value text-orange">Rp 842.100.500</span>
+                                <span class="fin-desc">Sisa Saldo Kas: <b>Rp 608.129.500</b></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. VIEW: PUSAT PEMULIHAN DOKUMEN (RECOVERY PORTAL & KORBAN CRUD) -->
+                <section class="dashboard-view" id="view-recovery">
+                    <div class="view-header">
+                        <h2>Portal Pemulihan Mandiri & Registrasi Korban</h2>
+                        <p>Layanan pemulihan administrasi dan psikososial pasca-bencana. Daftarkan profil korban untuk klaim jatah logistik harian dan cetak ulang dokumen resmi yang hilang.</p>
+                    </div>
+
+                    <div class="recovery-grid">
+                        <!-- Left Column: Wizard Pemulihan Dokumen & Riwayat -->
+                        <div class="recovery-left">
+                            <div class="card-component">
+                                <div class="card-header justify-between">
+                                    <h3 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Wizard Pemulihan Dokumen</h3>
+                                    <span class="wizard-steps-badge">4 dari 6 Selesai</span>
+                                </div>
+                                <div class="wizard-steps-grid">
+                                    <div class="wizard-step-card step-done">
+                                        <div class="step-header">
+                                            <i class="fa-solid fa-address-card"></i>
+                                            <i class="fa-solid fa-circle-check step-check"></i>
+                                        </div>
+                                        <span class="step-title">E-KTP (Kartu Tanda Penduduk)</span>
+                                        <p class="step-desc">Pengajuan cetak ulang akibat hilang/rusak di Dukcapil Terdekat.</p>
+                                    </div>
+                                    <div class="wizard-step-card step-action">
+                                        <div class="step-header">
+                                            <i class="fa-solid fa-people-roof"></i>
+                                            <span class="action-alert">Perlu Action</span>
+                                        </div>
+                                        <span class="step-title">Kartu Keluarga (KK)</span>
+                                        <p class="step-desc">Verifikasi data anggota keluarga untuk penerbitan KK baru.</p>
+                                    </div>
+                                    <div class="wizard-step-card step-locked">
+                                        <div class="step-header">
+                                            <i class="fa-solid fa-baby"></i>
+                                            <i class="fa-solid fa-lock"></i>
+                                        </div>
+                                        <span class="step-title">Akte Kelahiran</span>
+                                        <p class="step-desc">Prasyarat: Harus memiliki E-KTP dan KK yang sudah tervalidasi.</p>
+                                    </div>
+                                    <div class="wizard-step-card step-done">
+                                        <div class="step-header">
+                                            <i class="fa-solid fa-file-invoice"></i>
+                                            <i class="fa-solid fa-circle-check step-check"></i>
+                                        </div>
+                                        <span class="step-title">Sertifikat Tanah (PTSL)</span>
+                                        <p class="step-desc">Pencetakan ulang sertifikat melalui program percepatan ATR/BPN.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formulir Registrasi Korban (CRUD Create) -->
+                            <div class="card-component mt-4">
+                                <div class="card-header">
+                                    <h3 class="card-title" id="form-korban-title"><i class="fa-solid fa-user-plus"></i> Registrasi Akun & Profil Korban</h3>
+                                </div>
+                                <form id="form-korban" class="korban-form-wrapper">
+                                    <input type="hidden" id="korban-id"> <!-- ID untuk update -->
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="korban-nama">Nama Lengkap Korban</label>
+                                            <input type="text" id="korban-nama" placeholder="Masukkan nama sesuai KTP..." required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="korban-nik">Nomor Induk Kependudukan (NIK)</label>
+                                            <input type="text" id="korban-nik" maxlength="16" placeholder="Masukkan NIK 16 digit..." required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="korban-kk">Nomor Kartu Keluarga (KK)</label>
+                                            <input type="text" id="korban-kk" maxlength="16" placeholder="Masukkan nomor KK..." required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="korban-kelompok">Kelompok Rentan</label>
+                                            <select id="korban-kelompok" required>
+                                                <option value="Tidak Ada">Tidak Ada (Umum)</option>
+                                                <option value="Balita">Balita (&lt; 5 Tahun)</option>
+                                                <option value="Lansia">Lansia (&gt; 60 Tahun)</option>
+                                                <option value="Ibu Hamil">Ibu Hamil / Menyusui</option>
+                                                <option value="Disabilitas">Penyandang Disabilitas</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="korban-rumah">Status Kondisi Rumah Tinggal</label>
+                                        <select id="korban-rumah" required>
+                                            <option value="Aman / Tidak Terdampak">Aman / Tidak Terdampak</option>
+                                            <option value="Rusak Ringan">Rusak Ringan (Kerugian minor, aman dihuni)</option>
+                                            <option value="Rusak Sedang">Rusak Sedang (Sebagian roboh, perlu perbaikan)</option>
+                                            <option value="Rusak Berat">Rusak Berat (Roboh total, tidak dapat dihuni)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="korban-alamat">Alamat Asal Asli (Sebelum Bencana)</label>
+                                        <textarea id="korban-alamat" placeholder="Masukkan RT/RW, Dusun, Desa/Kelurahan, Kecamatan asal..." rows="2" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn-primary-orange w-100" id="btn-submit-korban">
+                                        <i class="fa-solid fa-user-check"></i> DAFTARKAN PROFIL KORBAN
+                                    </button>
+                                    <button type="button" class="btn-secondary-outline w-100 mt-2 d-none" id="btn-cancel-edit-korban">
+                                        Batal Edit Profil
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Coupon & Active Info -->
+                        <div class="recovery-right">
+                            <!-- Kupon Bantuan Aktif (Taktis) -->
+                            <div class="card-component coupon-card-component">
+                                <div class="card-header justify-between">
+                                    <h3 class="card-title"><i class="fa-solid fa-ticket"></i> Kupon Bantuan Aktif</h3>
+                                    <i class="fa-solid fa-qrcode qr-icon"></i>
+                                </div>
+                                <div class="coupon-box">
+                                    <div class="barcode-simulator">
+                                        <div class="barcode-line"></div>
+                                        <div class="barcode-line w-75"></div>
+                                        <div class="barcode-line w-50"></div>
+                                        <div class="barcode-line w-85"></div>
+                                        <div class="barcode-line w-60"></div>
+                                    </div>
+                                    <span class="coupon-code">BUDI-99203</span>
+                                    <p class="coupon-desc">Tunjukkan kode ini di Posko Logistik atau Apotek Rekanan untuk klaim jatah harian.</p>
+                                    <div class="coupon-divider"></div>
+                                    <div class="coupon-footer">
+                                        <span class="footer-title">Jatah Logistik Pangan</span>
+                                        <span class="footer-value">1 / 3 Harian</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Info Mobil Keliling -->
+                            <div class="card-component mt-4 info-moving-card">
+                                <div class="card-header">
+                                    <h3 class="card-title text-orange"><i class="fa-solid fa-truck"></i> Info Mobil Keliling</h3>
+                                </div>
+                                <div class="info-body">
+                                    <p class="info-alert-text">Unit Dukcapil Keliling akan berada di <b>Posko 3 Sukamaju</b> besok pukul <b>08:00 - 12:00 WIB</b>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Manajemen Korban (CRUD Read & Update & Delete) -->
+                    <div class="card-component mt-4">
+                        <div class="card-header justify-between">
+                            <h3 class="card-title"><i class="fa-solid fa-users"></i> Tabel Basis Data Profil Korban Terdaftar (REST API CRUD)</h3>
+                            <button class="btn-refresh" id="btn-refresh-korban"><i class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table" id="table-korban">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nama Lengkap</th>
+                                        <th>NIK</th>
+                                        <th>No. KK</th>
+                                        <th>Kelompok Rentan</th>
+                                        <th>Kondisi Rumah</th>
+                                        <th>Alamat Asal</th>
+                                        <th class="text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-korban">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">Memuat data dari server backend...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. VIEW: HOTLINE PENGADUAN -->
+                <section class="dashboard-view" id="view-hotline">
+                    <!-- Header -->
+                    <div class="hotline-main-header">
+                        <h1>Pusat Pengaduan & Bantuan Darurat</h1>
+                        <p>Tanggap cepat, terpadu, dan transparan. Hubungi petugas dalam hitungan detik.</p>
+                        <!-- Tombol SOS Besar -->
+                        <div class="sos-button-wrapper">
+                            <button class="btn-sos-main" id="btn-sos-trigger">
+                                <span>SOS</span>
+                            </button>
+                            <span class="sos-hint-text">TEKAN UNTUK BANTUAN SEGERA</span>
+                        </div>
+                    </div>
+
+                    <div class="hotline-grid">
+                        <!-- Kontak Utama (Kiri) -->
+                        <div class="hotline-contacts">
+                            <h3 class="section-subtitle">Kontak Utama Bantuan</h3>
+                            <div class="contact-cards-stack">
+                                <div class="contact-card">
+                                    <div class="contact-left">
+                                        <span class="contact-label text-orange">DARURAT API</span>
+                                        <span class="contact-name">Damkar (113)</span>
+                                    </div>
+                                    <button class="btn-call-trigger"><i class="fa-solid fa-phone"></i></button>
+                                </div>
+                                <div class="contact-card">
+                                    <div class="contact-left">
+                                        <span class="contact-label text-cyan">DARURAT MEDIS</span>
+                                        <span class="contact-name">Ambulans (118/119)</span>
+                                    </div>
+                                    <button class="btn-call-trigger"><i class="fa-solid fa-prescription-bottle-medical"></i></button>
+                                </div>
+                                <div class="contact-card">
+                                    <div class="contact-left">
+                                        <span class="contact-label text-orange">PENCARIAN</span>
+                                        <span class="contact-name">BASARNAS</span>
+                                    </div>
+                                    <button class="btn-call-trigger"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="tips-keselamatan-card card-component mt-4">
+                                <h4 class="card-title"><i class="fa-solid fa-circle-info"></i> Tips Keselamatan</h4>
+                                <p class="tips-text">Pastikan Anda berada di tempat yang aman sebelum melakukan pelaporan. Gunakan masker jika terdapat asap pekat.</p>
+                            </div>
+                        </div>
+
+                        <!-- Form Lapor Kejadian Baru (Kanan) -->
+                        <div class="card-component">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa-solid fa-bullhorn"></i> Lapor Kejadian Baru</h3>
+                            </div>
+                            <form id="form-laporan-kejadian" class="incident-form">
+                                <div class="form-group">
+                                    <label for="incident-loc">Lokasi Kebakaran / Kejadian</label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="incident-loc" placeholder="Masukkan alamat atau koordinat..." required>
+                                        <i class="fa-solid fa-crosshairs input-icon-right"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="incident-condition">Kondisi Terkini</label>
+                                    <select id="incident-condition" required>
+                                        <option value="" disabled selected>Pilih kondisi...</option>
+                                        <option value="Asap Pekat">Asap Pekat</option>
+                                        <option value="Api Membumbung Tinggi">Api Membumbung Tinggi</option>
+                                        <option value="Runtuhan Bangunan">Runtuhan Bangunan</option>
+                                        <option value="Kebutuhan Evakuasi Medis">Kebutuhan Evakuasi Medis</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="incident-victims">Estimasi Korban Terdampak (opsional)</label>
+                                    <input type="number" id="incident-victims" placeholder="Jumlah orang...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Foto Kondisi Lapangan</label>
+                                    <div class="drag-drop-zone">
+                                        <i class="fa-solid fa-camera upload-icon"></i>
+                                        <span class="upload-text">Klik atau seret foto ke sini untuk diunggah</span>
+                                        <span class="upload-subtext">Maksimal 10MB (JPG, PNG)</span>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary-orange w-100">
+                                    <i class="fa-solid fa-paper-plane"></i> Kirim Laporan Sekarang
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Status Laporan Saya (Tabel) -->
+                    <div class="card-component mt-4">
+                        <div class="card-header justify-between">
+                            <h3 class="card-title"><i class="fa-solid fa-clipboard-list"></i> Status Laporan Saya</h3>
+                            <span class="see-all-link">Lihat Semua Riwayat &rarr;</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>TICKET ID</th>
+                                        <th>KATEGORI</th>
+                                        <th>WAKTU LAPOR</th>
+                                        <th>STATUS</th>
+                                        <th class="text-right">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#EB-88219</td>
+                                        <td><span class="category-badge badge-danger">Kebakaran Hutan</span></td>
+                                        <td>Hari ini, 14:20</td>
+                                        <td><span class="dot blue-dot"></span> Petugas Menuju Lokasi</td>
+                                        <td class="text-right"><button class="btn-action-icon"><i class="fa-regular fa-eye"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#EB-88104</td>
+                                        <td><span class="category-badge badge-neutral">Medis</span></td>
+                                        <td>Kemarin, 09:15</td>
+                                        <td><span class="dot green-dot"></span> Selesai</td>
+                                        <td class="text-right"><button class="btn-action-icon"><i class="fa-regular fa-eye"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- FOOTER HAK CIPTA -->
+            <footer class="dashboard-footer">
+                <span class="footer-copyright">&copy; 2026 EmberLord Tactical Response. All rights reserved.</span>
+                <div class="footer-links">
+                    <a href="#">Kebijakan Privasi</a>
+                    <a href="#">Ketentuan Layanan</a>
+                    <a href="#">Hubungi Support</a>
+                </div>
+            </footer>
+        </main>
+
+        <!-- WIDGET AI CHATBOT MENGAMBANG (BOTTOM RIGHT CHATBOT WIDGET) -->
+        <div class="floating-chatbot-widget" id="chatbot-widget">
+            <!-- Pemicu Tombol Chatbot -->
+            <button class="chatbot-trigger-btn" id="chatbot-trigger" title="Hubungi EmberBot Support">
+                <i class="fa-solid fa-robot"></i>
+            </button>
+
+            <!-- Kotak Percakapan Chatbot (Glassmorphism Dark) -->
+            <div class="chatbot-window glassmorphism" id="chatbot-window">
+                <div class="chatbot-window-header">
+                    <div class="bot-identity">
+                        <span class="bot-status-dot active"></span>
+                        <div class="bot-names">
+                            <h4>EmberBot Support</h4>
+                            <span>AI Taktis Gemini Flash</span>
+                        </div>
+                    </div>
+                    <button class="btn-close-chatbot" id="btn-close-chat"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="chatbot-messages-body" id="chatbot-messages">
+                    <!-- Pesan Awal Bot -->
+                    <div class="message bot-message">
+                        <p>Halo! Saya adalah <b>EmberBot Support</b>, asisten taktis Anda. Ada yang bisa saya bantu terkait kebutuhan logistik, posko evakuasi, atau pemulihan dokumen hari ini?</p>
+                        <span class="message-time">14:28</span>
+                    </div>
+                </div>
+                <div class="chatbot-input-footer">
+                    <input type="text" id="chatbot-input" placeholder="Tulis pesan Anda...">
+                    <button class="btn-send-message" id="btn-send-chat"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL OVERLAY PORTAL LOGIN / REGISTER KORBAN (IMAGE 1) -->
+        <div class="modal-overlay-login" id="modal-login">
+            <div class="login-page-container">
+                <!-- Sisi Kiri: Branding Taktis -->
+                <div class="login-brand-side">
+                    <div class="brand-badge">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>EMBERLORD</span>
+                    </div>
+                    
+                    <h2 class="login-hero-title">Tactical Response. <br><span class="orange-highlight-text">Humanitarian Heart.</span></h2>
+                    
+                    <p class="login-brand-desc">EmberLord menyediakan koordinasi logistik dan respons darurat real-time untuk bencana. Masuk untuk mengakses portal evakuasi atau manajemen sumber daya.</p>
+                    
+                    <div class="login-badges-row">
+                        <span class="tech-badge"><i class="fa-solid fa-circle-check"></i> Enkripsi Militer</span>
+                        <span class="tech-badge"><i class="fa-solid fa-bolt"></i> Respon &lt; 5 Menit</span>
+                    </div>
+                </div>
+
+                <!-- Sisi Kanan: Form Login/Register -->
+                <div class="login-form-side card-component">
+                    <!-- Tab Switcher -->
+                    <div class="auth-tabs">
+                        <button class="auth-tab-btn active" id="auth-tab-login">Masuk ke EmberLord</button>
+                        <button class="auth-tab-btn" id="auth-tab-register">Daftar Akun Baru</button>
+                    </div>
+
+                    <!-- Form Content -->
+                    <div class="auth-form-content">
+                        <!-- Peran Anda -->
+                        <div class="role-selector-group">
+                            <label class="role-label-title">PILIH PERAN ANDA</label>
+                            <div class="role-options">
+                                <button class="role-opt-btn active" id="role-korban"><i class="fa-solid fa-user-injured"></i> Saya adalah Korban</button>
+                                <button class="role-opt-btn" id="role-relawan"><i class="fa-solid fa-handshake-angle"></i> Relawan / Donatur</button>
+                            </div>
+                        </div>
+
+                        <!-- Form Input Masuk -->
+                        <form id="form-auth-submit" class="auth-fields-wrapper">
+                            <div class="form-group">
+                                <label for="auth-email">Email / ID Korban</label>
+                                <div class="input-with-icon">
+                                    <input type="email" id="auth-email" placeholder="contoh@emberlord.id" required>
+                                    <i class="fa-regular fa-envelope input-icon-left"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="password-label-row">
+                                    <label for="auth-password">Password</label>
+                                    <a href="#" class="forgot-pass-link">Lupa Password?</a>
+                                </div>
+                                <div class="input-with-icon">
+                                    <input type="password" id="auth-password" placeholder="••••••••" required>
+                                    <i class="fa-solid fa-lock input-icon-left"></i>
+                                    <i class="fa-regular fa-eye password-toggle-btn" id="toggle-password"></i>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary-orange w-100 py-3 mt-4" id="btn-login-submit">
+                                Masuk Sekarang <i class="fa-solid fa-arrow-right-to-bracket ml-2"></i>
+                            </button>
+                        </form>
+
+                        <div class="divider-text">
+                            <span>ATAU</span>
+                        </div>
+
+                        <button class="btn-google-login w-100">
+                            <i class="fa-brands fa-google google-icon"></i> Masuk dengan Google
+                        </button>
+
+                        <div class="auth-terms-text">
+                            Dengan masuk, Anda menyetujui <a href="#">Ketentuan Layanan</a> dan <a href="#">Kebijakan Privasi</a> kami.
+                        </div>
+                    </div>
+                    <button class="btn-close-modal" id="btn-close-login-modal"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
