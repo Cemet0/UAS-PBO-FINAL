@@ -10,12 +10,20 @@ const API_BASE_URL = 'http://localhost:8080/api';
 let currentEditingDonasiId = null;
 let currentEditingKorbanId = null;
 
+// Variabel Global Peta Leaflet
+let map = null;
+let currentTileLayer = null;
+let userGpsMarker = null;
+let userGpsCircle = null;
+let currentLayerType = 'roadmap'; // 'roadmap' atau 'satellite'
+
 // Elemen DOM saat halaman dimuat
 document.addEventListener('DOMContentLoaded', () => {
     initSPARouter();
     initAuthModal();
     initChatbot();
     initSOSButton();
+    initMap();
     
     // Muat data awal dari API backend
     fetchDonasi();
@@ -59,6 +67,12 @@ function initSPARouter() {
             views.forEach(view => {
                 if (view.id === targetViewId) {
                     view.classList.add('active');
+                    // Paksa rendering ulang peta Leaflet jika aktif agar ukuran map tidak rusak (grey tiles)
+                    if (targetViewId === 'view-map' && map) {
+                        setTimeout(() => {
+                            map.invalidateSize();
+                        }, 100);
+                    }
                 } else {
                     view.classList.remove('active');
                 }
@@ -735,4 +749,163 @@ function escapeHTML(str) {
             '"': '&quot;'
         }[tag] || tag)
     );
+}
+
+/* ==========================================================================
+   8. INTEGRASI LEAFLET MAP & GPS TRACKING (KOTA SEMARANG)
+   ========================================================================== */
+function initMap() {
+    const semarangLat = -6.9932;
+    const semarangLng = 110.4203;
+
+    // Matikan zoom control bawaan Leaflet karena kita menggunakan tombol kustom di kanan bawah
+    map = L.map('map', {
+        zoomControl: false,
+        center: [semarangLat, semarangLng],
+        zoom: 13
+    });
+
+    // Layer Peta Google Maps standard
+    const googleRoadmap = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google Maps'
+    });
+
+    // Layer Satelit Google Maps
+    const googleSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google Maps'
+    });
+
+    // Tambahkan peta standard saat awal dimuat
+    googleRoadmap.addTo(map);
+    currentTileLayer = googleRoadmap;
+
+    // Tambahkan marker Posko di Kota Semarang
+    // 1. GOR Tri Lomba Juang
+    L.marker([-6.9897, 110.4207]).addTo(map)
+        .bindPopup('<b>Posko 1: GOR Tri Lomba Juang</b><br>Kapasitas: 142 Slot tersisa.<br>Status: Normal');
+    
+    // 2. Masjid Agung Jawa Tengah (MAJT)
+    L.marker([-6.9839, 110.4455]).addTo(map)
+        .bindPopup('<b>Posko 2: Masjid Agung Jawa Tengah</b><br>Kapasitas: 300+ Slot tersisa.<br>Status: Leluasa');
+
+    // 3. Halaman Kantor Balai Kota Semarang
+    L.marker([-6.9806, 110.4162]).addTo(map)
+        .bindPopup('<b>Posko 3: Balai Kota Semarang</b><br>Kapasitas: Penuh.<br>Status: Sangat Padat');
+
+    // Tambahkan Lingkaran Zona Bahaya Kebakaran di Semarang
+    L.circle([-6.9950, 110.4250], {
+        color: '#FF6B00',
+        fillColor: 'rgba(255, 107, 0, 0.25)',
+        fillOpacity: 0.4,
+        radius: 400
+    }).addTo(map).bindPopup('<b>🚨 ZONA BAHAYA UTAMA (KEBAKARAN)</b><br>Harap jauhi radius area ini.');
+
+    // Hubungkan kontrol tombol kustom
+    document.getElementById('btn-map-zoomin').addEventListener('click', () => {
+        map.zoomIn();
+    });
+
+    document.getElementById('btn-map-zoomout').addEventListener('click', () => {
+        map.zoomOut();
+    });
+
+    document.getElementById('btn-map-layer').addEventListener('click', () => {
+        if (currentLayerType === 'roadmap') {
+            map.removeLayer(googleRoadmap);
+            googleSatellite.addTo(map);
+            currentTileLayer = googleSatellite;
+            currentLayerType = 'satellite';
+        } else {
+            map.removeLayer(googleSatellite);
+            googleRoadmap.addTo(map);
+            currentTileLayer = googleRoadmap;
+            currentLayerType = 'roadmap';
+        }
+    });
+
+    document.getElementById('btn-map-gps').addEventListener('click', () => {
+        focusOnUserLocation();
+    });
+
+    // Jalankan deteksi GPS otomatis secara real-time
+    trackUserLocation();
+}
+
+function trackUserLocation() {
+    if (!navigator.geolocation) {
+        console.log("Geolocation/GPS tidak didukung oleh peramban ini.");
+        return;
+    }
+
+    // Mengamati perubahan lokasi perangkat pengguna secara real-time
+    navigator.geolocation.watchPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            updateGpsMarker(lat, lng, accuracy);
+        },
+        (error) => {
+            console.warn("Gagal mendapatkan akses GPS perangkat: ", error.message);
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 5000
+        }
+    );
+}
+
+function updateGpsMarker(lat, lng, accuracy) {
+    if (userGpsMarker) {
+        userGpsMarker.setLatLng([lat, lng]);
+        userGpsCircle.setLatLng([lat, lng]);
+        userGpsCircle.setRadius(accuracy);
+    } else {
+        // Ikon kustom berupa dot biru dengan denyut animasi CSS
+        const userIcon = L.divIcon({
+            className: 'user-gps-marker',
+            html: '<div class="gps-dot"></div><div class="gps-pulse"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        userGpsMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map)
+            .bindPopup('<b>Lokasi Anda Saat Ini</b>');
+        
+        userGpsCircle = L.circle([lat, lng], {
+            radius: accuracy,
+            color: '#00D2FF',
+            fillColor: '#00D2FF',
+            fillOpacity: 0.15,
+            weight: 1
+        }).addTo(map);
+    }
+}
+
+function focusOnUserLocation() {
+    if (userGpsMarker) {
+        const latLng = userGpsMarker.getLatLng();
+        map.setView(latLng, 16, { animate: true });
+    } else {
+        // Minta posisi sekali jika watchPosition belum terpicu
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+                
+                updateGpsMarker(lat, lng, accuracy);
+                map.setView([lat, lng], 16, { animate: true });
+            },
+            (error) => {
+                alert("Gagal mengakses GPS perangkat Anda. Pastikan izin lokasi telah diberikan.");
+            }
+        );
+    }
 }

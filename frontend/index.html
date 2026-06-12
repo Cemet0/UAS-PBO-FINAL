@@ -10,6 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <!-- Link FontAwesome untuk Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet.js CSS & JS untuk Peta Interaktif -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -147,42 +150,15 @@
                                 </div>
                             </div>
                             <div class="map-canvas-wrapper">
-                                <!-- Simulasi Peta Taktis SVG -->
-                                <svg viewBox="0 0 800 500" class="tactical-map-svg" id="tactical-map">
-                                    <!-- Jalanan -->
-                                    <path d="M 50,50 L 750,50 M 50,250 L 750,250 M 50,450 L 750,450 M 150,50 L 150,450 M 400,50 L 400,450 M 650,50 L 650,450" stroke="#1E293B" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
-                                    <!-- Sungai / Rintangan -->
-                                    <path d="M 50,150 Q 200,200 400,120 T 750,180" stroke="#00D2FF" stroke-width="4" fill="none" opacity="0.3"/>
-                                    
-                                    <!-- Zona Bahaya Api (Orange/Red Glowing Pulse Circles) -->
-                                    <circle cx="380" cy="230" r="70" class="pulse-danger-zone" fill="rgba(255, 107, 0, 0.25)" stroke="#FF6B00" stroke-width="2" />
-                                    <circle cx="380" cy="230" r="10" fill="#FF6B00"/>
-                                    <text x="380" y="150" fill="#FF6B00" font-family="Orbitron" font-size="12" text-anchor="middle" font-weight="bold">ZONA BAHAYA UTAMA</text>
-
-                                    <!-- Posko-posko Aman (Pins) -->
-                                    <!-- Posko 1: Balai Desa -->
-                                    <g class="map-pin" transform="translate(180, 100)">
-                                        <circle cx="0" cy="0" r="8" fill="#00D2FF" class="pulse-pin"/>
-                                        <text x="12" y="4" fill="#FFFFFF" font-size="10" font-family="Outfit">Posko Balai Desa</text>
-                                    </g>
-                                    <!-- Posko 2: GOR Pemuda -->
-                                    <g class="map-pin" transform="translate(600, 320)">
-                                        <circle cx="0" cy="0" r="8" fill="#00D2FF" class="pulse-pin"/>
-                                        <text x="12" y="4" fill="#FFFFFF" font-size="10" font-family="Outfit">GOR Pemuda</text>
-                                    </g>
-                                    <!-- Posko 3: Masjid Al-Ikhlas -->
-                                    <g class="map-pin" transform="translate(520, 90)">
-                                        <circle cx="0" cy="0" r="8" fill="#00D2FF" class="pulse-pin"/>
-                                        <text x="12" y="4" fill="#FFFFFF" font-size="10" font-family="Outfit">Masjid Al-Ikhlas</text>
-                                    </g>
-                                </svg>
+                                <!-- Wadah Peta Leaflet Interaktif -->
+                                <div id="map" style="width: 100%; height: 500px; z-index: 1;"></div>
                                 
-                                <!-- Zoom Control -->
-                                <div class="map-controls">
-                                    <button class="map-control-btn"><i class="fa-solid fa-plus"></i></button>
-                                    <button class="map-control-btn"><i class="fa-solid fa-minus"></i></button>
-                                    <button class="map-control-btn"><i class="fa-solid fa-layer-group"></i></button>
-                                    <button class="map-control-btn"><i class="fa-solid fa-crosshairs"></i></button>
+                                <!-- Zoom & Control Tombol Custom -->
+                                <div class="map-controls" style="z-index: 1000; position: absolute; bottom: 20px; right: 20px;">
+                                    <button class="map-control-btn" id="btn-map-zoomin" title="Perbesar"><i class="fa-solid fa-plus"></i></button>
+                                    <button class="map-control-btn" id="btn-map-zoomout" title="Perkecil"><i class="fa-solid fa-minus"></i></button>
+                                    <button class="map-control-btn" id="btn-map-layer" title="Ubah Tampilan (Satelit/Peta)"><i class="fa-solid fa-layer-group"></i></button>
+                                    <button class="map-control-btn" id="btn-map-gps" title="Fokus ke GPS Perangkat"><i class="fa-solid fa-crosshairs"></i></button>
                                 </div>
                             </div>
                         </div>

@@ -1972,3 +1972,75 @@ textarea:focus {
     transform: scale(1.1);
 }
 
+/* ==========================================================================
+   CSS UNTUK DENYUT GPS USER & KUSTOMISASI LEAFLET MAP
+   ========================================================================== */
+.user-gps-marker {
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
+
+.gps-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #00D2FF;
+    border: 2px solid #FFFFFF;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.8);
+    z-index: 2;
+}
+
+.gps-pulse {
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 210, 255, 0.4);
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: gps-pulsate 1.8s infinite ease-out;
+    z-index: 1;
+}
+
+@keyframes gps-pulsate {
+    0% {
+        transform: scale(0.6);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* Memperbaiki overflow Leaflet di dark theme */
+.leaflet-container {
+    background-color: #090C11 !important;
+    font-family: var(--font-primary) !important;
+}
+
+/* Kustomisasi tampilan popup Leaflet agar match dengan tema game/cyberpunk */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background: #1E222B !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-content {
+    margin: 12px 16px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+.leaflet-popup-close-button {
+    color: var(--text-muted) !important;
+    padding: 8px 8px 0 0 !important;
+}
+
+
