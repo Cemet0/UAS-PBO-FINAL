@@ -566,8 +566,8 @@ function initAuthModal() {
    5. INTERAKSI WIDGET AI CHATBOT (EMBERBOT - POWERED BY GOOGLE GEMINI)
    ========================================================================== */
 
-// API key dibaca dari config.js (tidak di-push ke Git — lihat config.example.js)
-const GROQ_API_KEY = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG.GROQ_API_KEY : '';
+// API key Groq untuk EmberBot AI — dari https://console.groq.com
+const GROQ_API_KEY = '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';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Riwayat percakapan untuk konteks multi-turn
