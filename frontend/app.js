@@ -563,8 +563,36 @@ function initAuthModal() {
 
 
 /* ==========================================================================
-   5. INTERAKSI WIDGET AI CHATBOT (EMBERBOT SUPPORT)
+   5. INTERAKSI WIDGET AI CHATBOT (EMBERBOT - POWERED BY GOOGLE GEMINI)
    ========================================================================== */
+
+// API key dibaca dari config.js (tidak di-push ke Git — lihat config.example.js)
+const GROQ_API_KEY = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG.GROQ_API_KEY : '';
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+// Riwayat percakapan untuk konteks multi-turn
+let chatHistory = [];
+
+// System prompt: memberi konteks kepada AI tentang peran EmberBot
+const SYSTEM_PROMPT = `Kamu adalah EmberBot, asisten AI darurat bencana dari platform Emberlord di Kota Semarang.
+Kamu membantu korban bencana kebakaran dan pengungsi dengan cara yang hangat, santai, dan mudah dipahami — seperti teman yang peduli.
+
+Informasi yang kamu tahu:
+- Posko 1: GOR Tri Lomba Juang — masih ada 142 tempat, aman
+- Posko 2: Masjid Agung Jawa Tengah (MAJT) — masih lega banget, 300+ slot
+- Posko 3: Balai Kota Semarang — udah penuh, sangat padat
+- Logistik yang lagi dibutuhin banget: Popok Bayi (70%), Selimut (40%), Tenda (20%)
+- Mau donasi barang? Bisa daftarin di tab "Portal Donasi Terbuka"
+- KTP/KK hilang? Urus di menu "Pusat Pemulihan Dokumen"
+- Hotline darurat: BASARNAS 115 | Damkar 113 | Ambulans 118
+
+Cara kamu ngobrol:
+- Pakai bahasa santai, friendly, pakai kata "kamu" bukan "Anda"
+- Bisa paham bahasa gaul atau campur-campur (bahasa Jawa, slang, dll)
+- Kalau gak tau jawabannya, suruh hubungi hotline atau petugas posko
+- Jawaban singkat aja, maksimal 3-4 kalimat atau poin — jangan bertele-tele
+- Tetap fokus soal bencana, evakuasi, donasi, atau pemulihan dokumen ya`;
+
 function initChatbot() {
     const trigger = document.getElementById('chatbot-trigger');
     const windowEl = document.getElementById('chatbot-window');
@@ -572,6 +600,10 @@ function initChatbot() {
     const sendBtn = document.getElementById('btn-send-chat');
     const chatInput = document.getElementById('chatbot-input');
     const messagesBody = document.getElementById('chatbot-messages');
+    const botStatusDot = document.querySelector('.bot-status-dot');
+
+    // Tandai bot sebagai online
+    if (botStatusDot) botStatusDot.classList.add('active');
 
     // Buka / Tutup chat window
     trigger.addEventListener('click', () => {
@@ -594,12 +626,16 @@ function initChatbot() {
         }
     });
 
-    // Kirim pesan
-    function sendChatMessage() {
+    // Kirim pesan ke Gemini API
+    async function sendChatMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
 
-        // Tambah pesan user
+        // Nonaktifkan input saat menunggu respons
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+
+        // Tambah pesan user ke UI
         appendMessage('user', text);
         chatInput.value = '';
 
@@ -607,13 +643,74 @@ function initChatbot() {
         const typingId = appendTypingIndicator();
         messagesBody.scrollTop = messagesBody.scrollHeight;
 
-        // Simulasi respon bot Gemini Flash (1.2 detik delay)
-        setTimeout(() => {
+        // Tambahkan ke riwayat chat
+        chatHistory.push({ role: 'user', parts: [{ text: text }] });
+
+        try {
+            // Cek apakah API key sudah diisi
+            if (GROQ_API_KEY === 'MASUKKAN_GROQ_API_KEY_DISINI' || !GROQ_API_KEY) {
+                throw new Error('API_KEY_MISSING');
+            }
+
+            // Bangun messages format OpenAI-compatible untuk Groq
+            const messages = [
+                { role: 'system', content: SYSTEM_PROMPT },
+                ...chatHistory.map(h => ({
+                    role: h.role === 'model' ? 'assistant' : h.role,
+                    content: h.parts[0].text
+                }))
+            ];
+
+            // Panggil Groq API (OpenAI-compatible)
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GROQ_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.1-8b-instant',
+                    messages: messages,
+                    max_tokens: 512,
+                    temperature: 0.7
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || `HTTP Error ${response.status}`);
+            }
+
+            const data = await response.json();
+            const botReply = data.choices?.[0]?.message?.content
+                || 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
+
+            // Simpan balasan bot ke riwayat (format Gemini-style untuk konsistensi)
+            chatHistory.push({ role: 'model', parts: [{ text: botReply }] });
+
             removeTypingIndicator(typingId);
-            const responseText = getBotResponse(text);
-            appendMessage('bot', responseText);
+            appendMessage('bot', botReply
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                .replace(/\n/g, '<br>'));
+
+        } catch (error) {
+            removeTypingIndicator(typingId);
+
+            if (error.message === 'API_KEY_MISSING') {
+                chatHistory.pop();
+                const fallbackReply = getBotResponseFallback(text);
+                appendMessage('bot', `${fallbackReply}<br><br><small style="color:var(--text-muted)">⚠️ <i>Mode offline — isi GEMINI_API_KEY di app.js untuk AI sungguhan.</i></small>`);
+            } else {
+                console.error('Gemini API Error:', error);
+                chatHistory.pop();
+                appendMessage('bot', `<i class="fa-solid fa-triangle-exclamation" style="color:#F59E0B"></i> Koneksi AI bermasalah: <b>${error.message}</b>. Coba lagi ya.`);
+            }
+        } finally {
+            chatInput.disabled = false;
+            sendBtn.disabled = false;
+            chatInput.focus();
             messagesBody.scrollTop = messagesBody.scrollHeight;
-        }, 1200);
+        }
     }
 
     function appendMessage(sender, content) {
@@ -646,8 +743,8 @@ function initChatbot() {
         if (el) el.remove();
     }
 
-    // Generator respon bot taktis berbasis kata kunci
-    function getBotResponse(query) {
+    // Fallback berbasis kata kunci (dipakai jika API key belum diisi)
+    function getBotResponseFallback(query) {
         const cleanQuery = query.toLowerCase();
         
         if (cleanQuery.includes('posko') || cleanQuery.includes('lokasi') || cleanQuery.includes('tempat') || cleanQuery.includes('peta')) {
