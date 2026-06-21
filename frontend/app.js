@@ -8,6 +8,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 
 // State global aplikasi
 let currentEditingDonasiId = null;
+let currentEditingDonasiDanaId = null;
 let currentEditingKorbanId = null;
 
 // Variabel Global Peta Leaflet
@@ -24,22 +25,30 @@ document.addEventListener('DOMContentLoaded', () => {
     initChatbot();
     initSOSButton();
     initMap();
+    initDonationTabs();
+    initIncidentPhotoUpload();
+    initLaporanDetailModal();
     
     // Muat data awal dari API backend
     fetchDonasi();
+    fetchDonasiDana();
     fetchKorban();
+    fetchLaporan();
 
     // Event handler untuk form submit CRUD
     document.getElementById('form-donasi').addEventListener('submit', handleDonasiSubmit);
+    document.getElementById('form-donasi-dana').addEventListener('submit', handleDonasiDanaSubmit);
     document.getElementById('form-korban').addEventListener('submit', handleKorbanSubmit);
     document.getElementById('form-laporan-kejadian').addEventListener('submit', handleLaporanKejadianSubmit);
 
     // Event listener untuk tombol muat ulang data
     document.getElementById('btn-refresh-donasi').addEventListener('click', fetchDonasi);
+    document.getElementById('btn-refresh-donasi-dana').addEventListener('click', fetchDonasiDana);
     document.getElementById('btn-refresh-korban').addEventListener('click', fetchKorban);
     
     // Batalkan pengeditan
     document.getElementById('btn-cancel-edit-donasi').addEventListener('click', cancelDonasiEdit);
+    document.getElementById('btn-cancel-edit-donasi-dana').addEventListener('click', cancelDonasiDanaEdit);
     document.getElementById('btn-cancel-edit-korban').addEventListener('click', cancelKorbanEdit);
 
     // Filter pencarian global sederhana
@@ -235,6 +244,222 @@ async function deleteDonasi(id) {
     } catch (error) {
         console.error('Error deleteDonasi:', error);
         alert(`Gagal menghapus donasi: ${error.message}`);
+    }
+}
+
+/* Helper formatting Rupiah */
+function formatRupiah(amount) {
+    return 'Rp ' + Number(amount).toLocaleString('id-ID');
+}
+
+/* Inisialisasi Tab Donasi */
+function initDonationTabs() {
+    const tabBarang = document.getElementById('tab-donasi-barang');
+    const tabDana = document.getElementById('tab-donasi-dana');
+    const formBarang = document.getElementById('form-donasi');
+    const formDana = document.getElementById('form-donasi-dana');
+    const cardBarang = document.getElementById('card-donasi-barang');
+    const cardDana = document.getElementById('card-donasi-dana');
+
+    if (tabBarang && tabDana && formBarang && formDana && cardBarang && cardDana) {
+        tabBarang.addEventListener('click', () => {
+            tabBarang.classList.add('active');
+            tabDana.classList.remove('active');
+            formBarang.classList.remove('d-none');
+            formDana.classList.add('d-none');
+            cardBarang.classList.remove('d-none');
+            cardDana.classList.add('d-none');
+        });
+
+        tabDana.addEventListener('click', () => {
+            tabDana.classList.add('active');
+            tabBarang.classList.remove('active');
+            formDana.classList.remove('d-none');
+            formBarang.classList.add('d-none');
+            cardDana.classList.remove('d-none');
+            cardBarang.classList.add('d-none');
+        });
+    }
+}
+
+/* READ DANA: Mendapatkan semua data donasi dana */
+async function fetchDonasiDana() {
+    const tbody = document.getElementById('tbody-donasi-dana');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungi server backend...</td></tr>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/donasi-dana`);
+        if (!response.ok) throw new Error('Gagal mengambil data donasi dana');
+        
+        const donasiDanaList = await response.json();
+        renderDonasiDanaTable(donasiDanaList);
+        updateFinancialStats(donasiDanaList);
+    } catch (error) {
+        console.error('Error fetchDonasiDana:', error);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red">
+            <i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat data dari server backend (${error.message}). <br>
+            Pastikan server Spring Boot menyala di port 8080.
+        </td></tr>`;
+    }
+}
+
+/* RENDER DANA: Merender array donasi dana ke tabel UI */
+function renderDonasiDanaTable(donasiDanaList) {
+    const tbody = document.getElementById('tbody-donasi-dana');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    if (donasiDanaList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada komitmen donasi dana tunai terdaftar.</td></tr>';
+        return;
+    }
+    
+    donasiDanaList.forEach(donasi => {
+        const tr = document.createElement('tr');
+        
+        let badgeClass = 'status-warning';
+        if (donasi.statusTransaksi === 'Pending') badgeClass = 'status-danger';
+        else if (donasi.statusTransaksi === 'Gagal') badgeClass = 'status-full';
+        else if (donasi.statusTransaksi === 'Berhasil') badgeClass = 'status-success';
+
+        tr.innerHTML = `
+            <td><span class="text-cyan font-bold">#DD-${donasi.id}</span></td>
+            <td>${escapeHTML(donasi.namaDonatur)}</td>
+            <td><span class="value-highlight">${formatRupiah(donasi.jumlahDana)}</span></td>
+            <td>${escapeHTML(donasi.metodePembayaran)}</td>
+            <td><span class="badge-status ${badgeClass}">${donasi.statusTransaksi.toUpperCase()}</span></td>
+            <td class="text-right">
+                <button class="btn-action-icon" onclick="editDonasiDana(${donasi.id})" title="Perbarui Status / Edit"><i class="fa-regular fa-pen-to-square"></i></button>
+                <button class="btn-action-icon btn-delete" onclick="deleteDonasiDana(${donasi.id})" title="Batalkan Donasi"><i class="fa-regular fa-trash-can"></i></button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* UPDATE STATS: Memperbarui visual buku kas secara dinamis */
+function updateFinancialStats(donasiDanaList) {
+    const baseTotal = 1450230000;
+    const totalNew = donasiDanaList
+        .filter(d => d.statusTransaksi === 'Berhasil')
+        .reduce((sum, d) => sum + d.jumlahDana, 0);
+    const finalTotal = baseTotal + totalNew;
+    
+    const finCards = document.querySelectorAll('.financial-stats-grid .fin-card');
+    if (finCards.length >= 3) {
+        const totalMasukVal = finCards[0].querySelector('.fin-value');
+        if (totalMasukVal) {
+            totalMasukVal.textContent = formatRupiah(finalTotal);
+        }
+        
+        const allocCircleVal = finCards[1].querySelector('.alloc-val');
+        if (allocCircleVal) {
+            allocCircleVal.textContent = (finalTotal / 1000000000).toFixed(2) + 'B';
+        }
+        
+        const pengeluaran = 842100500;
+        const sisaSaldo = finalTotal - pengeluaran;
+        const sisaSaldoDesc = finCards[2].querySelector('.fin-desc');
+        if (sisaSaldoDesc) {
+            sisaSaldoDesc.innerHTML = `Sisa Saldo Kas: <b>${formatRupiah(sisaSaldo)}</b>`;
+        }
+    }
+}
+
+/* CREATE / UPDATE: Submit form komitmen donasi dana */
+async function handleDonasiDanaSubmit(e) {
+    e.preventDefault();
+    
+    const namaDonatur = document.getElementById('donasi-dana-donatur').value;
+    const jumlahDana = parseFloat(document.getElementById('donasi-dana-jumlah').value);
+    const metodePembayaran = document.getElementById('donasi-dana-metode').value;
+    const statusTransaksi = document.getElementById('donasi-dana-status').value;
+    const noRekeningHp = document.getElementById('donasi-dana-pengirim').value;
+    const peruntukanDana = document.getElementById('donasi-dana-peruntukan').value;
+    
+    const donasiDanaData = { namaDonatur, jumlahDana, metodePembayaran, statusTransaksi, noRekeningHp, peruntukanDana };
+    
+    try {
+        let response;
+        if (currentEditingDonasiDanaId) {
+            response = await fetch(`${API_BASE_URL}/donasi-dana/${currentEditingDonasiDanaId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(donasiDanaData)
+            });
+        } else {
+            response = await fetch(`${API_BASE_URL}/donasi-dana`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(donasiDanaData)
+            });
+        }
+        
+        if (!response.ok) throw new Error('Gagal mengirim komitmen donasi dana ke database');
+        
+        document.getElementById('form-donasi-dana').reset();
+        cancelDonasiDanaEdit();
+        fetchDonasiDana();
+        alert(currentEditingDonasiDanaId ? 'Data donasi dana berhasil diperbarui!' : 'Komitmen donasi dana berhasil didaftarkan secara transparan!');
+    } catch (error) {
+        console.error('Error submit donasi dana:', error);
+        alert(`Gagal menyimpan data donasi dana: ${error.message}`);
+    }
+}
+
+/* EDIT TRIGGER DANA: Memasukkan data ke form untuk diedit */
+async function editDonasiDana(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/donasi-dana/${id}`);
+        if (!response.ok) throw new Error('Gagal mengambil detail donasi dana');
+        
+        const donasiDana = await response.json();
+        
+        document.getElementById('donasi-dana-id').value = donasiDana.id;
+        document.getElementById('donasi-dana-donatur').value = donasiDana.namaDonatur;
+        document.getElementById('donasi-dana-jumlah').value = donasiDana.jumlahDana;
+        document.getElementById('donasi-dana-metode').value = donasiDana.metodePembayaran;
+        document.getElementById('donasi-dana-status').value = donasiDana.statusTransaksi;
+        document.getElementById('donasi-dana-pengirim').value = donasiDana.noRekeningHp || '';
+        document.getElementById('donasi-dana-peruntukan').value = donasiDana.peruntukanDana || 'Bebas (Dialokasikan Tim)';
+        
+        currentEditingDonasiDanaId = donasiDana.id;
+        document.getElementById('btn-submit-donasi-dana').innerHTML = '<i class="fa-solid fa-pen-fancy"></i> PERBARUI DONASI DANA';
+        document.getElementById('btn-cancel-edit-donasi-dana').classList.remove('d-none');
+        
+        document.getElementById('form-donasi-dana').scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+        console.error('Error editDonasiDana:', error);
+        alert(`Gagal memuat detail donasi dana: ${error.message}`);
+    }
+}
+
+/* CANCEL EDIT DANA: Keluar dari mode edit donasi dana */
+function cancelDonasiDanaEdit() {
+    currentEditingDonasiDanaId = null;
+    document.getElementById('donasi-dana-id').value = '';
+    document.getElementById('btn-submit-donasi-dana').innerHTML = '<i class="fa-solid fa-paper-plane"></i> KOMITMEN DONASI DANA SEKARANG';
+    document.getElementById('btn-cancel-edit-donasi-dana').classList.add('d-none');
+    document.getElementById('form-donasi-dana').reset();
+}
+
+/* DELETE DANA: Membatalkan/menghapus donasi dana */
+async function deleteDonasiDana(id) {
+    if (!confirm('Apakah Anda yakin ingin membatalkan/menghapus komitmen donasi dana ini?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/donasi-dana/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Gagal menghapus donasi dana dari server');
+        
+        fetchDonasiDana();
+        alert('Klaim pembatalan donasi dana diproses, entri berhasil dihapus.');
+    } catch (error) {
+        console.error('Error deleteDonasiDana:', error);
+        alert(`Gagal menghapus donasi dana: ${error.message}`);
     }
 }
 
@@ -563,36 +788,8 @@ function initAuthModal() {
 
 
 /* ==========================================================================
-   5. INTERAKSI WIDGET AI CHATBOT (EMBERBOT - POWERED BY GOOGLE GEMINI)
+   5. INTERAKSI WIDGET AI CHATBOT (EMBERBOT SUPPORT)
    ========================================================================== */
-
-// API key Groq untuk EmberBot AI — dari https://console.groq.com
-const GROQ_API_KEY = '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';
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-// Riwayat percakapan untuk konteks multi-turn
-let chatHistory = [];
-
-// System prompt: memberi konteks kepada AI tentang peran EmberBot
-const SYSTEM_PROMPT = `Kamu adalah EmberBot, asisten AI darurat bencana dari platform Emberlord di Kota Semarang.
-Kamu membantu korban bencana kebakaran dan pengungsi dengan cara yang hangat, santai, dan mudah dipahami — seperti teman yang peduli.
-
-Informasi yang kamu tahu:
-- Posko 1: GOR Tri Lomba Juang — masih ada 142 tempat, aman
-- Posko 2: Masjid Agung Jawa Tengah (MAJT) — masih lega banget, 300+ slot
-- Posko 3: Balai Kota Semarang — udah penuh, sangat padat
-- Logistik yang lagi dibutuhin banget: Popok Bayi (70%), Selimut (40%), Tenda (20%)
-- Mau donasi barang? Bisa daftarin di tab "Portal Donasi Terbuka"
-- KTP/KK hilang? Urus di menu "Pusat Pemulihan Dokumen"
-- Hotline darurat: BASARNAS 115 | Damkar 113 | Ambulans 118
-
-Cara kamu ngobrol:
-- Pakai bahasa santai, friendly, pakai kata "kamu" bukan "Anda"
-- Bisa paham bahasa gaul atau campur-campur (bahasa Jawa, slang, dll)
-- Kalau gak tau jawabannya, suruh hubungi hotline atau petugas posko
-- Jawaban singkat aja, maksimal 3-4 kalimat atau poin — jangan bertele-tele
-- Tetap fokus soal bencana, evakuasi, donasi, atau pemulihan dokumen ya`;
-
 function initChatbot() {
     const trigger = document.getElementById('chatbot-trigger');
     const windowEl = document.getElementById('chatbot-window');
@@ -600,10 +797,6 @@ function initChatbot() {
     const sendBtn = document.getElementById('btn-send-chat');
     const chatInput = document.getElementById('chatbot-input');
     const messagesBody = document.getElementById('chatbot-messages');
-    const botStatusDot = document.querySelector('.bot-status-dot');
-
-    // Tandai bot sebagai online
-    if (botStatusDot) botStatusDot.classList.add('active');
 
     // Buka / Tutup chat window
     trigger.addEventListener('click', () => {
@@ -626,16 +819,12 @@ function initChatbot() {
         }
     });
 
-    // Kirim pesan ke Gemini API
-    async function sendChatMessage() {
+    // Kirim pesan
+    function sendChatMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
 
-        // Nonaktifkan input saat menunggu respons
-        chatInput.disabled = true;
-        sendBtn.disabled = true;
-
-        // Tambah pesan user ke UI
+        // Tambah pesan user
         appendMessage('user', text);
         chatInput.value = '';
 
@@ -643,74 +832,13 @@ function initChatbot() {
         const typingId = appendTypingIndicator();
         messagesBody.scrollTop = messagesBody.scrollHeight;
 
-        // Tambahkan ke riwayat chat
-        chatHistory.push({ role: 'user', parts: [{ text: text }] });
-
-        try {
-            // Cek apakah API key sudah diisi
-            if (GROQ_API_KEY === 'MASUKKAN_GROQ_API_KEY_DISINI' || !GROQ_API_KEY) {
-                throw new Error('API_KEY_MISSING');
-            }
-
-            // Bangun messages format OpenAI-compatible untuk Groq
-            const messages = [
-                { role: 'system', content: SYSTEM_PROMPT },
-                ...chatHistory.map(h => ({
-                    role: h.role === 'model' ? 'assistant' : h.role,
-                    content: h.parts[0].text
-                }))
-            ];
-
-            // Panggil Groq API (OpenAI-compatible)
-            const response = await fetch(GROQ_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: 'llama-3.1-8b-instant',
-                    messages: messages,
-                    max_tokens: 512,
-                    temperature: 0.7
-                })
-            });
-
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error?.message || `HTTP Error ${response.status}`);
-            }
-
-            const data = await response.json();
-            const botReply = data.choices?.[0]?.message?.content
-                || 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
-
-            // Simpan balasan bot ke riwayat (format Gemini-style untuk konsistensi)
-            chatHistory.push({ role: 'model', parts: [{ text: botReply }] });
-
+        // Simulasi respon bot Gemini Flash (1.2 detik delay)
+        setTimeout(() => {
             removeTypingIndicator(typingId);
-            appendMessage('bot', botReply
-                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                .replace(/\n/g, '<br>'));
-
-        } catch (error) {
-            removeTypingIndicator(typingId);
-
-            if (error.message === 'API_KEY_MISSING') {
-                chatHistory.pop();
-                const fallbackReply = getBotResponseFallback(text);
-                appendMessage('bot', `${fallbackReply}<br><br><small style="color:var(--text-muted)">⚠️ <i>Mode offline — isi GEMINI_API_KEY di app.js untuk AI sungguhan.</i></small>`);
-            } else {
-                console.error('Gemini API Error:', error);
-                chatHistory.pop();
-                appendMessage('bot', `<i class="fa-solid fa-triangle-exclamation" style="color:#F59E0B"></i> Koneksi AI bermasalah: <b>${error.message}</b>. Coba lagi ya.`);
-            }
-        } finally {
-            chatInput.disabled = false;
-            sendBtn.disabled = false;
-            chatInput.focus();
+            const responseText = getBotResponse(text);
+            appendMessage('bot', responseText);
             messagesBody.scrollTop = messagesBody.scrollHeight;
-        }
+        }, 1200);
     }
 
     function appendMessage(sender, content) {
@@ -743,8 +871,8 @@ function initChatbot() {
         if (el) el.remove();
     }
 
-    // Fallback berbasis kata kunci (dipakai jika API key belum diisi)
-    function getBotResponseFallback(query) {
+    // Generator respon bot taktis berbasis kata kunci
+    function getBotResponse(query) {
         const cleanQuery = query.toLowerCase();
         
         if (cleanQuery.includes('posko') || cleanQuery.includes('lokasi') || cleanQuery.includes('tempat') || cleanQuery.includes('peta')) {
@@ -793,14 +921,275 @@ function initSOSButton() {
     }
 }
 
+let currentUploadedPhotoBase64 = null;
+
+// Mengatur unggah foto kejadian
+function initIncidentPhotoUpload() {
+    const dragDropZone = document.getElementById('drag-drop-zone');
+    const fileInput = document.getElementById('incident-photo');
+    const promptContainer = document.getElementById('drag-drop-prompt');
+    const previewContainer = document.getElementById('photo-preview-container');
+    const previewImg = document.getElementById('photo-preview');
+    const removeBtn = document.getElementById('btn-remove-photo');
+
+    if (!dragDropZone || !fileInput) return;
+
+    // Trigger click on file input
+    dragDropZone.addEventListener('click', (e) => {
+        if (e.target === fileInput || e.target.closest('#photo-preview-container')) return;
+        fileInput.click();
+    });
+
+    // Handle file change
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        handlePhotoFile(file);
+    });
+
+    // Handle Drag & Drop
+    dragDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dragDropZone.style.borderColor = 'var(--tech-cyan)';
+    });
+
+    dragDropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragDropZone.style.borderColor = 'var(--border-color)';
+    });
+
+    dragDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragDropZone.style.borderColor = 'var(--border-color)';
+        const file = e.dataTransfer.files[0];
+        handlePhotoFile(file);
+    });
+
+    // Remove photo
+    if (removeBtn) {
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            resetPhotoUpload();
+        });
+    }
+
+    function handlePhotoFile(file) {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('File harus berupa gambar (JPG, PNG, dll.)');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran gambar maksimal 10MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            currentUploadedPhotoBase64 = event.target.result;
+            previewImg.src = currentUploadedPhotoBase64;
+            promptContainer.classList.add('d-none');
+            previewContainer.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    window.resetPhotoUpload = function() {
+        fileInput.value = '';
+        currentUploadedPhotoBase64 = null;
+        previewImg.src = '';
+        previewContainer.classList.add('d-none');
+        promptContainer.classList.remove('d-none');
+    };
+}
+
+// Inisialisasi Modal Detail
+function initLaporanDetailModal() {
+    const modal = document.getElementById('modal-laporan-detail');
+    const closeBtn = document.getElementById('btn-close-laporan-modal');
+
+    if (modal && closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+    }
+}
+
 // Laporan Kejadian Baru
-function handleLaporanKejadianSubmit(e) {
+async function handleLaporanKejadianSubmit(e) {
     e.preventDefault();
     const lokasi = document.getElementById('incident-loc').value;
     const kondisi = document.getElementById('incident-condition').value;
-    alert(`Laporan Kejadian Berhasil Terkirim!\nLokasi: ${lokasi}\nKondisi: ${kondisi}\nPetugas akan segera memverifikasi laporan Anda.`);
-    document.getElementById('form-laporan-kejadian').reset();
+    const estimasiKorbanInput = document.getElementById('incident-victims').value;
+    const estimasiKorban = estimasiKorbanInput ? parseInt(estimasiKorbanInput) : null;
+    const foto = currentUploadedPhotoBase64; // Data Base64 dari FileReader
+    
+    const laporanData = { lokasi, kondisi, estimasiKorban, foto };
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/laporan-kejadian`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(laporanData)
+        });
+        
+        if (!response.ok) throw new Error('Gagal mengirim laporan kejadian ke database');
+        
+        document.getElementById('form-laporan-kejadian').reset();
+        if (window.resetPhotoUpload) window.resetPhotoUpload();
+        
+        fetchLaporan();
+        alert('Laporan Kejadian Berhasil Terkirim secara Resmi! Petugas akan segera memverifikasi laporan Anda.');
+    } catch (error) {
+        console.error('Error submit laporan kejadian:', error);
+        alert(`Gagal mengirim laporan: ${error.message}`);
+    }
 }
+
+// READ REPORTS: Mendapatkan seluruh data laporan kejadian dari API
+async function fetchLaporan() {
+    const tbody = document.getElementById('tbody-laporan');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungi server backend...</td></tr>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/laporan-kejadian`);
+        if (!response.ok) throw new Error('Gagal mengambil data laporan kejadian');
+        
+        const laporanList = await response.json();
+        renderLaporanTable(laporanList);
+    } catch (error) {
+        console.error('Error fetchLaporan:', error);
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red">
+            <i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat data laporan dari server backend (${error.message}).
+        </td></tr>`;
+    }
+}
+
+// RENDER REPORTS: Merender array laporan ke tabel UI
+function renderLaporanTable(laporanList) {
+    const tbody = document.getElementById('tbody-laporan');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    if (laporanList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Belum ada laporan kejadian aktif terdaftar.</td></tr>';
+        return;
+    }
+    
+    laporanList.forEach(laporan => {
+        const tr = document.createElement('tr');
+        
+        let badgeClass = 'badge-neutral';
+        const cond = laporan.kondisi.toLowerCase();
+        if (cond.includes('kebakaran') || cond.includes('api') || cond.includes('runtuhan')) {
+            badgeClass = 'badge-danger';
+        }
+        
+        let dotClass = 'red-dot'; // Pending / default
+        if (laporan.statusLaporan === 'Petugas Menuju Lokasi') {
+            dotClass = 'blue-dot';
+        } else if (laporan.statusLaporan === 'Selesai') {
+            dotClass = 'green-dot';
+        }
+        
+        tr.innerHTML = `
+            <td><span class="text-cyan font-bold">#EB-${laporan.id}</span></td>
+            <td><span class="category-badge ${badgeClass}">${escapeHTML(laporan.kondisi)}</span></td>
+            <td>${escapeHTML(laporan.waktuLapor)}</td>
+            <td><span class="dot ${dotClass}"></span> ${escapeHTML(laporan.statusLaporan)}</td>
+            <td class="text-right">
+                <button class="btn-action-icon" onclick="viewLaporanDetail(${laporan.id})" title="Lihat Detail Kejadian"><i class="fa-regular fa-eye"></i></button>
+                <button class="btn-action-icon btn-delete" onclick="deleteLaporan(${laporan.id})" title="Hapus Laporan"><i class="fa-regular fa-trash-can"></i></button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// VIEW DETAIL: Menampilkan detail laporan secara interaktif dengan Modal Kustom
+async function viewLaporanDetail(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/laporan-kejadian/${id}`);
+        if (!response.ok) throw new Error('Gagal mengambil detail laporan');
+        
+        const laporan = await response.json();
+        
+        const contentDiv = document.getElementById('laporan-detail-content');
+        if (!contentDiv) return;
+
+        let fotoHtml = '';
+        if (laporan.foto) {
+            fotoHtml = `
+                <div style="margin-top: 10px;">
+                    <span style="display: block; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Foto Kondisi Lapangan:</span>
+                    <img src="${laporan.foto}" alt="Foto Lapangan" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color);">
+                </div>
+            `;
+        } else {
+            fotoHtml = `
+                <div style="margin-top: 10px; padding: 16px; text-align: center; border: 1px dashed var(--border-color); border-radius: 6px; color: var(--text-muted);">
+                    <i class="fa-regular fa-image" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                    Tidak ada foto terlampir
+                </div>
+            `;
+        }
+
+        contentDiv.innerHTML = `
+            <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; align-items: baseline;">
+                <span style="font-weight: 600; color: var(--text-muted);">Ticket ID:</span>
+                <span class="text-cyan font-bold">#EB-${laporan.id}</span>
+
+                <span style="font-weight: 600; color: var(--text-muted);">Kategori:</span>
+                <span>${escapeHTML(laporan.kondisi)}</span>
+
+                <span style="font-weight: 600; color: var(--text-muted);">Lokasi:</span>
+                <span>${escapeHTML(laporan.lokasi)}</span>
+
+                <span style="font-weight: 600; color: var(--text-muted);">Estimasi Korban:</span>
+                <span>${laporan.estimasiKorban !== null ? laporan.estimasiKorban + ' Orang' : 'Tidak Ada / Tidak Diketahui'}</span>
+
+                <span style="font-weight: 600; color: var(--text-muted);">Waktu Lapor:</span>
+                <span>${escapeHTML(laporan.waktuLapor)}</span>
+
+                <span style="font-weight: 600; color: var(--text-muted);">Status Laporan:</span>
+                <span>${escapeHTML(laporan.statusLaporan)}</span>
+            </div>
+            ${fotoHtml}
+        `;
+
+        const modal = document.getElementById('modal-laporan-detail');
+        if (modal) {
+            modal.classList.add('active');
+        }
+    } catch (error) {
+        console.error('Error viewLaporanDetail:', error);
+        alert(`Gagal mengambil detail laporan: ${error.message}`);
+    }
+}
+
+// DELETE REPORT: Menghapus laporan kejadian dari server
+async function deleteLaporan(id) {
+    if (!confirm('Apakah Anda yakin ingin membatalkan/menghapus laporan kejadian ini?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/laporan-kejadian/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Gagal menghapus laporan kejadian dari server');
+        
+        fetchLaporan();
+        alert('Laporan kejadian berhasil dihapus/dibatalkan.');
+    } catch (error) {
+        console.error('Error deleteLaporan:', error);
+        alert(`Gagal menghapus laporan: ${error.message}`);
+    }
+}
+
 
 
 /* ==========================================================================
@@ -809,10 +1198,34 @@ function handleLaporanKejadianSubmit(e) {
 function handleGlobalSearch(e) {
     const query = e.target.value.toLowerCase();
     
-    // Cari di tabel donasi
+    // Cari di tabel donasi barang
     const donasiRows = document.querySelectorAll('#tbody-donasi tr');
     donasiRows.forEach(row => {
         if (row.cells.length < 5) return;
+        const text = row.innerText.toLowerCase();
+        if (text.includes(query)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Cari di tabel donasi dana
+    const donasiDanaRows = document.querySelectorAll('#tbody-donasi-dana tr');
+    donasiDanaRows.forEach(row => {
+        if (row.cells.length < 5) return;
+        const text = row.innerText.toLowerCase();
+        if (text.includes(query)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Cari di tabel laporan kejadian
+    const laporanRows = document.querySelectorAll('#tbody-laporan tr');
+    laporanRows.forEach(row => {
+        if (row.cells.length < 4) return;
         const text = row.innerText.toLowerCase();
         if (text.includes(query)) {
             row.style.display = '';

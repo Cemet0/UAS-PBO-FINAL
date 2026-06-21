@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
     <!-- Link Font Google Modern (Outfit dan Orbitron untuk Gamer/Taktis) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap"
+        rel="stylesheet">
     <!-- Link FontAwesome untuk Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet.js CSS & JS untuk Peta Interaktif -->
@@ -15,6 +18,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
     <!-- CONTAINER UTAMA -->
@@ -58,7 +62,8 @@
             <div class="sidebar-footer">
                 <!-- Tampilan profil ketika sudah login (default tersembunyi dengan d-none) -->
                 <div class="user-profile-badge d-none" id="sidebar-user-badge">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Avatar Pengguna" class="user-avatar">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
+                        alt="Avatar Pengguna" class="user-avatar">
                     <div class="user-info">
                         <span class="user-name">Budi Santoso</span>
                         <span class="user-id">ID: EL-99203</span>
@@ -85,13 +90,14 @@
 
         <!-- AREA KONTEN UTAMA (KANAN) -->
         <main class="main-content">
-            
+
             <!-- NAVBAR ATAS (TOP NAVBAR) -->
             <header class="top-navbar">
                 <div class="navbar-left">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="global-search" placeholder="Cari posko, kebutuhan logistik, atau data...">
+                        <input type="text" id="global-search"
+                            placeholder="Cari posko, kebutuhan logistik, atau data...">
                     </div>
                 </div>
                 <div class="navbar-right">
@@ -143,7 +149,8 @@
                         <!-- Peta Taktis Mode Gelap -->
                         <div class="card-component map-container">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fa-solid fa-map"></i> Peta Zona Dampak & Posko Evakuasi</h3>
+                                <h3 class="card-title"><i class="fa-solid fa-map"></i> Peta Zona Dampak & Posko Evakuasi
+                                </h3>
                                 <div class="map-legends">
                                     <span class="legend-item"><span class="dot red-dot"></span> Zona Bahaya Api</span>
                                     <span class="legend-item"><span class="dot blue-dot"></span> Posko Aman</span>
@@ -152,13 +159,19 @@
                             <div class="map-canvas-wrapper">
                                 <!-- Wadah Peta Leaflet Interaktif -->
                                 <div id="map" style="width: 100%; height: 500px; z-index: 1;"></div>
-                                
+
                                 <!-- Zoom & Control Tombol Custom -->
-                                <div class="map-controls" style="z-index: 1000; position: absolute; bottom: 20px; right: 20px;">
-                                    <button class="map-control-btn" id="btn-map-zoomin" title="Perbesar"><i class="fa-solid fa-plus"></i></button>
-                                    <button class="map-control-btn" id="btn-map-zoomout" title="Perkecil"><i class="fa-solid fa-minus"></i></button>
-                                    <button class="map-control-btn" id="btn-map-layer" title="Ubah Tampilan (Satelit/Peta)"><i class="fa-solid fa-layer-group"></i></button>
-                                    <button class="map-control-btn" id="btn-map-gps" title="Fokus ke GPS Perangkat"><i class="fa-solid fa-crosshairs"></i></button>
+                                <div class="map-controls"
+                                    style="z-index: 1000; position: absolute; bottom: 20px; right: 20px;">
+                                    <button class="map-control-btn" id="btn-map-zoomin" title="Perbesar"><i
+                                            class="fa-solid fa-plus"></i></button>
+                                    <button class="map-control-btn" id="btn-map-zoomout" title="Perkecil"><i
+                                            class="fa-solid fa-minus"></i></button>
+                                    <button class="map-control-btn" id="btn-map-layer"
+                                        title="Ubah Tampilan (Satelit/Peta)"><i
+                                            class="fa-solid fa-layer-group"></i></button>
+                                    <button class="map-control-btn" id="btn-map-gps" title="Fokus ke GPS Perangkat"><i
+                                            class="fa-solid fa-crosshairs"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -178,7 +191,8 @@
                                     <span class="badge-status status-danger">HAMPIR PENUH</span>
                                 </div>
                                 <div class="posko-body">
-                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i> Aman  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i>
+                                        Aman | <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
                                     <div class="capacity-bar-wrapper">
                                         <div class="capacity-info">
                                             <span>Sisa Kapasitas</span>
@@ -197,7 +211,8 @@
                                     <span class="badge-status status-warning">NORMAL</span>
                                 </div>
                                 <div class="posko-body">
-                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i> Aman  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i>
+                                        Aman | <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
                                     <div class="capacity-bar-wrapper">
                                         <div class="capacity-info">
                                             <span>Sisa Kapasitas</span>
@@ -216,7 +231,8 @@
                                     <span class="badge-status status-success">LELUASA</span>
                                 </div>
                                 <div class="posko-body">
-                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i> Aman  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <p class="posko-status-text"><i class="fa-solid fa-circle-check text-green"></i>
+                                        Aman | <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
                                     <div class="capacity-bar-wrapper">
                                         <div class="capacity-info">
                                             <span>Sisa Kapasitas</span>
@@ -235,7 +251,9 @@
                                     <span class="badge-status status-full">PENUH</span>
                                 </div>
                                 <div class="posko-body">
-                                    <p class="posko-status-text"><i class="fa-solid fa-triangle-exclamation text-orange"></i> Terbatas  |  <i class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
+                                    <p class="posko-status-text"><i
+                                            class="fa-solid fa-triangle-exclamation text-orange"></i> Terbatas | <i
+                                            class="fa-solid fa-heart-pulse text-cyan"></i> OK</p>
                                     <div class="capacity-bar-wrapper">
                                         <div class="capacity-info">
                                             <span>Sisa Kapasitas</span>
@@ -255,14 +273,16 @@
                 <section class="dashboard-view" id="view-donation">
                     <div class="view-header">
                         <h2>Portal Donasi & Transparansi</h2>
-                        <p>Transparansi penuh untuk pemulihan bencana. Pantau kebutuhan logistik secara real-time dan lacak setiap bantuan barang Anda.</p>
+                        <p>Transparansi penuh untuk pemulihan bencana. Pantau kebutuhan logistik secara real-time dan
+                            lacak setiap bantuan barang Anda.</p>
                     </div>
 
                     <div class="donation-grid">
                         <!-- Kebutuhan Logistik Mendesak (Kiri) -->
                         <div class="card-component">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fa-solid fa-list-check"></i> Kebutuhan Logistik Mendesak <span class="live-updates-tag">Live Updates</span></h3>
+                                <h3 class="card-title"><i class="fa-solid fa-list-check"></i> Kebutuhan Logistik
+                                    Mendesak <span class="live-updates-tag">Live Updates</span></h3>
                             </div>
                             <div class="logistics-needs-list">
                                 <div class="need-item">
@@ -305,14 +325,16 @@
                                     </div>
                                     <span class="need-details">Kekurangan kritis akibat curah hujan tinggi</span>
                                 </div>
-                                <button class="btn-secondary-outline w-100 mt-3">Lihat Daftar Lengkap Logistik <i class="fa-solid fa-arrow-right"></i></button>
+                                <button class="btn-secondary-outline w-100 mt-3">Lihat Daftar Lengkap Logistik <i
+                                        class="fa-solid fa-arrow-right"></i></button>
                             </div>
                         </div>
 
                         <!-- Form Komitmen Donasi (Kanan) -->
                         <div class="card-component">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fa-solid fa-heart-circle-plus"></i> Komitmen Donasi</h3>
+                                <h3 class="card-title"><i class="fa-solid fa-heart-circle-plus"></i> Komitmen Donasi
+                                </h3>
                             </div>
                             <!-- Form Tab Selectors -->
                             <div class="form-tabs">
@@ -325,7 +347,8 @@
                                 <input type="hidden" id="donasi-id"> <!-- Untuk mode Edit/Update -->
                                 <div class="form-group">
                                     <label for="donasi-donatur">Nama Donatur / Organisasi</label>
-                                    <input type="text" id="donasi-donatur" placeholder="Masukkan nama lengkap Anda..." required>
+                                    <input type="text" id="donasi-donatur" placeholder="Masukkan nama lengkap Anda..."
+                                        required>
                                 </div>
                                 <div class="form-group">
                                     <label for="donasi-barang">Nama Barang Logistik</label>
@@ -342,7 +365,8 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
                                         <label for="donasi-jumlah">Jumlah (Kuantitas)</label>
-                                        <input type="number" id="donasi-jumlah" min="1" placeholder="Contoh: 10" required>
+                                        <input type="number" id="donasi-jumlah" min="1" placeholder="Contoh: 10"
+                                            required>
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="donasi-status">Status Pengiriman</label>
@@ -357,7 +381,83 @@
                                 <button type="submit" class="btn-primary-orange w-100" id="btn-submit-donasi">
                                     <i class="fa-solid fa-paper-plane"></i> KIRIM DONASI SEKARANG
                                 </button>
-                                <button type="button" class="btn-secondary-outline w-100 mt-2 d-none" id="btn-cancel-edit-donasi">
+                                <button type="button" class="btn-secondary-outline w-100 mt-2 d-none"
+                                    id="btn-cancel-edit-donasi">
+                                    Batal Edit
+                                </button>
+                            </form>
+
+                            <!-- Form Dana Tunai (CRUD Create) -->
+                            <form id="form-donasi-dana" class="donation-form-wrapper d-none">
+                                <input type="hidden" id="donasi-dana-id"> <!-- Untuk mode Edit/Update -->
+                                <div class="form-group">
+                                    <label for="donasi-dana-donatur">Nama Donatur / Organisasi</label>
+                                    <input type="text" id="donasi-dana-donatur"
+                                        placeholder="Masukkan nama lengkap Anda..." required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="donasi-dana-jumlah">Jumlah Dana (Rupiah)</label>
+                                        <input type="number" id="donasi-dana-jumlah" min="1000"
+                                            placeholder="Contoh: 500000" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="donasi-dana-metode">Metode Pembayaran</label>
+                                        <select id="donasi-dana-metode" required>
+                                            <option value="" disabled selected>Pilih metode...</option>
+                                            <option value="Transfer Bank BRI">Transfer Bank BRI</option>
+                                            <option value="Transfer Bank Mandiri">Transfer Bank Mandiri</option>
+                                            <option value="Transfer Bank BCA">Transfer Bank BCA</option>
+                                            <option value="E-Wallet (GoPay/OVO/Dana)">E-Wallet (GoPay/OVO/Dana)</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="donasi-dana-pengirim">No. Rekening / No. HP Pengirim
+                                            (Opsional)</label>
+                                        <input type="text" id="donasi-dana-pengirim"
+                                            placeholder="Untuk konfirmasi transfer...">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="donasi-dana-peruntukan">Peruntukan Dana</label>
+                                        <select id="donasi-dana-peruntukan" required>
+                                            <option value="Bebas (Dialokasikan Tim)">Bebas (Dialokasikan Tim)</option>
+                                            <option value="Logistik Bencana">Logistik Bencana</option>
+                                            <option value="Medis & Kesehatan">Medis & Kesehatan</option>
+                                            <option value="Operasional Posko">Operasional Posko</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="official-account-info"
+                                    style="background-color: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.2); border-radius: 8px; padding: 16px; margin-top: 8px; margin-bottom: 8px;">
+                                    <h5
+                                        style="color: var(--tech-cyan); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; margin-bottom: 6px; text-transform: none;">
+                                        <i class="fa-solid fa-building-columns"></i> Rekening Resmi EmberLord
+                                    </h5>
+                                    <p style="font-size: 12px; color: var(--text-main); margin-bottom: 4px;">Bank BRI |
+                                        <b>1234-5678-9012-3456</b> a.n. <b>Yayasan EmberLord Peduli</b></p>
+                                    <p
+                                        style="font-size: 11px; color: var(--safety-orange); font-weight: 500; margin-bottom: 0;">
+                                        QRIS tersedia di Posko Induk Sektor A & B</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="donasi-dana-status">Status Transaksi (Manajemen Relawan)</label>
+                                    <select id="donasi-dana-status">
+                                        <option value="Pending">Pending (Menunggu Verifikasi)</option>
+                                        <option value="Berhasil">Berhasil (Diterima)</option>
+                                        <option value="Gagal">Gagal (Ditolak)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-primary-orange w-100" id="btn-submit-donasi-dana">
+                                    <i class="fa-solid fa-paper-plane"></i> KOMITMEN DONASI DANA SEKARANG
+                                </button>
+                                <button type="button" class="btn-secondary-outline w-100 mt-2 d-none"
+                                    id="btn-cancel-edit-donasi-dana">
                                     Batal Edit
                                 </button>
                             </form>
@@ -366,11 +466,13 @@
 
                     <!-- Buku Kas Digital & Live Tracking Database (CRUD Read & Update & Delete) -->
                     <div class="transparency-section mt-4">
-                        <div class="card-component">
+                        <div class="card-component" id="card-donasi-barang">
                             <div class="card-header justify-between">
-                                <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan Donasi Barang (Real-Time CRUD)</h3>
+                                <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan
+                                    Donasi Barang (Real-Time CRUD)</h3>
                                 <div class="header-actions">
-                                    <button class="btn-refresh" id="btn-refresh-donasi"><i class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                                    <button class="btn-refresh" id="btn-refresh-donasi"><i
+                                            class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
                                 </div>
                             </div>
                             <div class="table-responsive">
@@ -388,7 +490,41 @@
                                     <tbody id="tbody-donasi">
                                         <!-- Data akan diisi secara dinamis oleh JavaScript fetch -->
                                         <tr>
-                                            <td colspan="6" class="text-center py-4">Memuat data dari server backend...</td>
+                                            <td colspan="6" class="text-center py-4">Memuat data dari server backend...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tabel Donasi Dana Tunai -->
+                        <div class="card-component d-none" id="card-donasi-dana">
+                            <div class="card-header justify-between">
+                                <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan
+                                    Donasi Dana Tunai (Real-Time CRUD)</h3>
+                                <div class="header-actions">
+                                    <button class="btn-refresh" id="btn-refresh-donasi-dana"><i
+                                            class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="custom-table" id="table-donasi-dana-list">
+                                    <thead>
+                                        <tr>
+                                            <th>ID Donasi</th>
+                                            <th>Nama Donatur</th>
+                                            <th>Jumlah Dana</th>
+                                            <th>Metode Pembayaran</th>
+                                            <th>Status Transaksi</th>
+                                            <th class="text-right">Aksi Manajemen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-donasi-dana">
+                                        <!-- Data akan diisi secara dinamis oleh JavaScript fetch -->
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">Memuat data dari server backend...
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -403,7 +539,8 @@
                             <div class="fin-card">
                                 <span class="fin-title">TOTAL DONASI MASUK</span>
                                 <span class="fin-value text-cyan">Rp 1.450.230.000</span>
-                                <span class="fin-growth"><i class="fa-solid fa-arrow-trend-up"></i> +12% dibanding kemarin</span>
+                                <span class="fin-growth"><i class="fa-solid fa-arrow-trend-up"></i> +12% dibanding
+                                    kemarin</span>
                             </div>
                             <div class="fin-card">
                                 <span class="fin-title">ALOKASI DANA</span>
@@ -431,7 +568,8 @@
                 <section class="dashboard-view" id="view-recovery">
                     <div class="view-header">
                         <h2>Portal Pemulihan Mandiri & Registrasi Korban</h2>
-                        <p>Layanan pemulihan administrasi dan psikososial pasca-bencana. Daftarkan profil korban untuk klaim jatah logistik harian dan cetak ulang dokumen resmi yang hilang.</p>
+                        <p>Layanan pemulihan administrasi dan psikososial pasca-bencana. Daftarkan profil korban untuk
+                            klaim jatah logistik harian dan cetak ulang dokumen resmi yang hilang.</p>
                     </div>
 
                     <div class="recovery-grid">
@@ -439,7 +577,8 @@
                         <div class="recovery-left">
                             <div class="card-component">
                                 <div class="card-header justify-between">
-                                    <h3 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Wizard Pemulihan Dokumen</h3>
+                                    <h3 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Wizard
+                                        Pemulihan Dokumen</h3>
                                     <span class="wizard-steps-badge">4 dari 6 Selesai</span>
                                 </div>
                                 <div class="wizard-steps-grid">
@@ -449,7 +588,8 @@
                                             <i class="fa-solid fa-circle-check step-check"></i>
                                         </div>
                                         <span class="step-title">E-KTP (Kartu Tanda Penduduk)</span>
-                                        <p class="step-desc">Pengajuan cetak ulang akibat hilang/rusak di Dukcapil Terdekat.</p>
+                                        <p class="step-desc">Pengajuan cetak ulang akibat hilang/rusak di Dukcapil
+                                            Terdekat.</p>
                                     </div>
                                     <div class="wizard-step-card step-action">
                                         <div class="step-header">
@@ -457,7 +597,8 @@
                                             <span class="action-alert">Perlu Action</span>
                                         </div>
                                         <span class="step-title">Kartu Keluarga (KK)</span>
-                                        <p class="step-desc">Verifikasi data anggota keluarga untuk penerbitan KK baru.</p>
+                                        <p class="step-desc">Verifikasi data anggota keluarga untuk penerbitan KK baru.
+                                        </p>
                                     </div>
                                     <div class="wizard-step-card step-locked">
                                         <div class="step-header">
@@ -465,7 +606,8 @@
                                             <i class="fa-solid fa-lock"></i>
                                         </div>
                                         <span class="step-title">Akte Kelahiran</span>
-                                        <p class="step-desc">Prasyarat: Harus memiliki E-KTP dan KK yang sudah tervalidasi.</p>
+                                        <p class="step-desc">Prasyarat: Harus memiliki E-KTP dan KK yang sudah
+                                            tervalidasi.</p>
                                     </div>
                                     <div class="wizard-step-card step-done">
                                         <div class="step-header">
@@ -473,7 +615,8 @@
                                             <i class="fa-solid fa-circle-check step-check"></i>
                                         </div>
                                         <span class="step-title">Sertifikat Tanah (PTSL)</span>
-                                        <p class="step-desc">Pencetakan ulang sertifikat melalui program percepatan ATR/BPN.</p>
+                                        <p class="step-desc">Pencetakan ulang sertifikat melalui program percepatan
+                                            ATR/BPN.</p>
                                     </div>
                                 </div>
                             </div>
@@ -481,24 +624,28 @@
                             <!-- Formulir Registrasi Korban (CRUD Create) -->
                             <div class="card-component mt-4">
                                 <div class="card-header">
-                                    <h3 class="card-title" id="form-korban-title"><i class="fa-solid fa-user-plus"></i> Registrasi Akun & Profil Korban</h3>
+                                    <h3 class="card-title" id="form-korban-title"><i class="fa-solid fa-user-plus"></i>
+                                        Registrasi Akun & Profil Korban</h3>
                                 </div>
                                 <form id="form-korban" class="korban-form-wrapper">
                                     <input type="hidden" id="korban-id"> <!-- ID untuk update -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="korban-nama">Nama Lengkap Korban</label>
-                                            <input type="text" id="korban-nama" placeholder="Masukkan nama sesuai KTP..." required>
+                                            <input type="text" id="korban-nama"
+                                                placeholder="Masukkan nama sesuai KTP..." required>
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="korban-nik">Nomor Induk Kependudukan (NIK)</label>
-                                            <input type="text" id="korban-nik" maxlength="16" placeholder="Masukkan NIK 16 digit..." required>
+                                            <input type="text" id="korban-nik" maxlength="16"
+                                                placeholder="Masukkan NIK 16 digit..." required>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="korban-kk">Nomor Kartu Keluarga (KK)</label>
-                                            <input type="text" id="korban-kk" maxlength="16" placeholder="Masukkan nomor KK..." required>
+                                            <input type="text" id="korban-kk" maxlength="16"
+                                                placeholder="Masukkan nomor KK..." required>
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="korban-kelompok">Kelompok Rentan</label>
@@ -515,19 +662,25 @@
                                         <label for="korban-rumah">Status Kondisi Rumah Tinggal</label>
                                         <select id="korban-rumah" required>
                                             <option value="Aman / Tidak Terdampak">Aman / Tidak Terdampak</option>
-                                            <option value="Rusak Ringan">Rusak Ringan (Kerugian minor, aman dihuni)</option>
-                                            <option value="Rusak Sedang">Rusak Sedang (Sebagian roboh, perlu perbaikan)</option>
-                                            <option value="Rusak Berat">Rusak Berat (Roboh total, tidak dapat dihuni)</option>
+                                            <option value="Rusak Ringan">Rusak Ringan (Kerugian minor, aman dihuni)
+                                            </option>
+                                            <option value="Rusak Sedang">Rusak Sedang (Sebagian roboh, perlu perbaikan)
+                                            </option>
+                                            <option value="Rusak Berat">Rusak Berat (Roboh total, tidak dapat dihuni)
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="korban-alamat">Alamat Asal Asli (Sebelum Bencana)</label>
-                                        <textarea id="korban-alamat" placeholder="Masukkan RT/RW, Dusun, Desa/Kelurahan, Kecamatan asal..." rows="2" required></textarea>
+                                        <textarea id="korban-alamat"
+                                            placeholder="Masukkan RT/RW, Dusun, Desa/Kelurahan, Kecamatan asal..."
+                                            rows="2" required></textarea>
                                     </div>
                                     <button type="submit" class="btn-primary-orange w-100" id="btn-submit-korban">
                                         <i class="fa-solid fa-user-check"></i> DAFTARKAN PROFIL KORBAN
                                     </button>
-                                    <button type="button" class="btn-secondary-outline w-100 mt-2 d-none" id="btn-cancel-edit-korban">
+                                    <button type="button" class="btn-secondary-outline w-100 mt-2 d-none"
+                                        id="btn-cancel-edit-korban">
                                         Batal Edit Profil
                                     </button>
                                 </form>
@@ -551,7 +704,8 @@
                                         <div class="barcode-line w-60"></div>
                                     </div>
                                     <span class="coupon-code">BUDI-99203</span>
-                                    <p class="coupon-desc">Tunjukkan kode ini di Posko Logistik atau Apotek Rekanan untuk klaim jatah harian.</p>
+                                    <p class="coupon-desc">Tunjukkan kode ini di Posko Logistik atau Apotek Rekanan
+                                        untuk klaim jatah harian.</p>
                                     <div class="coupon-divider"></div>
                                     <div class="coupon-footer">
                                         <span class="footer-title">Jatah Logistik Pangan</span>
@@ -563,10 +717,12 @@
                             <!-- Info Mobil Keliling -->
                             <div class="card-component mt-4 info-moving-card">
                                 <div class="card-header">
-                                    <h3 class="card-title text-orange"><i class="fa-solid fa-truck"></i> Info Mobil Keliling</h3>
+                                    <h3 class="card-title text-orange"><i class="fa-solid fa-truck"></i> Info Mobil
+                                        Keliling</h3>
                                 </div>
                                 <div class="info-body">
-                                    <p class="info-alert-text">Unit Dukcapil Keliling akan berada di <b>Posko 3 Sukamaju</b> besok pukul <b>08:00 - 12:00 WIB</b>.</p>
+                                    <p class="info-alert-text">Unit Dukcapil Keliling akan berada di <b>Posko 3
+                                            Sukamaju</b> besok pukul <b>08:00 - 12:00 WIB</b>.</p>
                                 </div>
                             </div>
                         </div>
@@ -575,8 +731,9 @@
                     <!-- Tabel Manajemen Korban (CRUD Read & Update & Delete) -->
                     <div class="card-component mt-4">
                         <div class="card-header justify-between">
-                            <h3 class="card-title"><i class="fa-solid fa-users"></i> Tabel Basis Data Profil Korban Terdaftar (REST API CRUD)</h3>
-                            <button class="btn-refresh" id="btn-refresh-korban"><i class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                            <h3 class="card-title"><i class="fa-solid fa-users"></i> Profil Korban Terdaftar </h3>
+                            <button class="btn-refresh" id="btn-refresh-korban"><i
+                                    class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
                         </div>
                         <div class="table-responsive">
                             <table class="custom-table" id="table-korban">
@@ -634,20 +791,23 @@
                                         <span class="contact-label text-cyan">DARURAT MEDIS</span>
                                         <span class="contact-name">Ambulans (118/119)</span>
                                     </div>
-                                    <button class="btn-call-trigger"><i class="fa-solid fa-prescription-bottle-medical"></i></button>
+                                    <button class="btn-call-trigger"><i
+                                            class="fa-solid fa-prescription-bottle-medical"></i></button>
                                 </div>
                                 <div class="contact-card">
                                     <div class="contact-left">
                                         <span class="contact-label text-orange">PENCARIAN</span>
                                         <span class="contact-name">BASARNAS</span>
                                     </div>
-                                    <button class="btn-call-trigger"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                    <button class="btn-call-trigger"><i
+                                            class="fa-solid fa-magnifying-glass"></i></button>
                                 </div>
                             </div>
 
                             <div class="tips-keselamatan-card card-component mt-4">
                                 <h4 class="card-title"><i class="fa-solid fa-circle-info"></i> Tips Keselamatan</h4>
-                                <p class="tips-text">Pastikan Anda berada di tempat yang aman sebelum melakukan pelaporan. Gunakan masker jika terdapat asap pekat.</p>
+                                <p class="tips-text">Pastikan Anda berada di tempat yang aman sebelum melakukan
+                                    pelaporan. Gunakan masker jika terdapat asap pekat.</p>
                             </div>
                         </div>
 
@@ -660,7 +820,8 @@
                                 <div class="form-group">
                                     <label for="incident-loc">Lokasi Kebakaran / Kejadian</label>
                                     <div class="input-with-icon">
-                                        <input type="text" id="incident-loc" placeholder="Masukkan alamat atau koordinat..." required>
+                                        <input type="text" id="incident-loc"
+                                            placeholder="Masukkan alamat atau koordinat..." required>
                                         <i class="fa-solid fa-crosshairs input-icon-right"></i>
                                     </div>
                                 </div>
@@ -680,10 +841,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Foto Kondisi Lapangan</label>
-                                    <div class="drag-drop-zone">
-                                        <i class="fa-solid fa-camera upload-icon"></i>
-                                        <span class="upload-text">Klik atau seret foto ke sini untuk diunggah</span>
-                                        <span class="upload-subtext">Maksimal 10MB (JPG, PNG)</span>
+                                    <div class="drag-drop-zone" id="drag-drop-zone">
+                                        <input type="file" id="incident-photo" accept="image/*" class="d-none">
+                                        <div id="drag-drop-prompt" style="display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center;">
+                                            <i class="fa-solid fa-camera upload-icon"></i>
+                                            <span class="upload-text">Klik atau seret foto ke sini untuk diunggah</span>
+                                            <span class="upload-subtext">Maksimal 10MB (JPG, PNG)</span>
+                                        </div>
+                                        <div id="photo-preview-container" class="d-none" style="margin-top: 10px; position: relative;">
+                                            <img id="photo-preview" src="" alt="Pratinjau Foto" style="max-width: 100%; max-height: 150px; border-radius: 4px; border: 1px solid var(--border-color); display: block; margin: 0 auto;">
+                                            <button type="button" id="btn-remove-photo" class="btn-action-icon btn-delete" style="display: block; margin: 8px auto 0 auto; padding: 4px 12px; font-size: 11px; background-color: #2a1115; border: 1px solid #da3633; color: #da3633; border-radius: 4px; cursor: pointer;"><i class="fa-regular fa-trash-can"></i> Hapus Foto</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn-primary-orange w-100">
@@ -710,20 +878,9 @@
                                         <th class="text-right">AKSI</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="tbody-laporan">
                                     <tr>
-                                        <td>#EB-88219</td>
-                                        <td><span class="category-badge badge-danger">Kebakaran Hutan</span></td>
-                                        <td>Hari ini, 14:20</td>
-                                        <td><span class="dot blue-dot"></span> Petugas Menuju Lokasi</td>
-                                        <td class="text-right"><button class="btn-action-icon"><i class="fa-regular fa-eye"></i></button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>#EB-88104</td>
-                                        <td><span class="category-badge badge-neutral">Medis</span></td>
-                                        <td>Kemarin, 09:15</td>
-                                        <td><span class="dot green-dot"></span> Selesai</td>
-                                        <td class="text-right"><button class="btn-action-icon"><i class="fa-regular fa-eye"></i></button></td>
+                                        <td colspan="5" class="text-center py-4">Memuat data dari server backend...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -766,7 +923,8 @@
                 <div class="chatbot-messages-body" id="chatbot-messages">
                     <!-- Pesan Awal Bot -->
                     <div class="message bot-message">
-                        <p>Halo! Saya adalah <b>EmberBot Support</b>, asisten taktis Anda. Ada yang bisa saya bantu terkait kebutuhan logistik, posko evakuasi, atau pemulihan dokumen hari ini?</p>
+                        <p>Halo! Saya adalah <b>EmberBot Support</b>, asisten taktis Anda. Ada yang bisa saya bantu
+                            terkait kebutuhan logistik, posko evakuasi, atau pemulihan dokumen hari ini?</p>
                         <span class="message-time">14:28</span>
                     </div>
                 </div>
@@ -786,11 +944,13 @@
                         <i class="fa-solid fa-shield-halved"></i>
                         <span>EMBERLORD</span>
                     </div>
-                    
-                    <h2 class="login-hero-title">Tactical Response. <br><span class="orange-highlight-text">Humanitarian Heart.</span></h2>
-                    
-                    <p class="login-brand-desc">EmberLord menyediakan koordinasi logistik dan respons darurat real-time untuk bencana. Masuk untuk mengakses portal evakuasi atau manajemen sumber daya.</p>
-                    
+
+                    <h2 class="login-hero-title">Tactical Response. <br><span class="orange-highlight-text">Humanitarian
+                            Heart.</span></h2>
+
+                    <p class="login-brand-desc">EmberLord menyediakan koordinasi logistik dan respons darurat real-time
+                        untuk bencana. Masuk untuk mengakses portal evakuasi atau manajemen sumber daya.</p>
+
                     <div class="login-badges-row">
                         <span class="tech-badge"><i class="fa-solid fa-circle-check"></i> Enkripsi Militer</span>
                         <span class="tech-badge"><i class="fa-solid fa-bolt"></i> Respon &lt; 5 Menit</span>
@@ -811,8 +971,10 @@
                         <div class="role-selector-group">
                             <label class="role-label-title">PILIH PERAN ANDA</label>
                             <div class="role-options">
-                                <button class="role-opt-btn active" id="role-korban"><i class="fa-solid fa-user-injured"></i> Saya adalah Korban</button>
-                                <button class="role-opt-btn" id="role-relawan"><i class="fa-solid fa-handshake-angle"></i> Relawan / Donatur</button>
+                                <button class="role-opt-btn active" id="role-korban"><i
+                                        class="fa-solid fa-user-injured"></i> Saya adalah Korban</button>
+                                <button class="role-opt-btn" id="role-relawan"><i
+                                        class="fa-solid fa-handshake-angle"></i> Relawan / Donatur</button>
                             </div>
                         </div>
 
@@ -836,7 +998,7 @@
                                     <i class="fa-regular fa-eye password-toggle-btn" id="toggle-password"></i>
                                 </div>
                             </div>
-                            
+
                             <button type="submit" class="btn-primary-orange w-100 py-3 mt-4" id="btn-login-submit">
                                 Masuk Sekarang <i class="fa-solid fa-arrow-right-to-bracket ml-2"></i>
                             </button>
@@ -851,19 +1013,35 @@
                         </button>
 
                         <div class="auth-terms-text">
-                            Dengan masuk, Anda menyetujui <a href="#">Ketentuan Layanan</a> dan <a href="#">Kebijakan Privasi</a> kami.
+                            Dengan masuk, Anda menyetujui <a href="#">Ketentuan Layanan</a> dan <a href="#">Kebijakan
+                                Privasi</a> kami.
                         </div>
                     </div>
-                    <button class="btn-close-modal" id="btn-close-login-modal"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="btn-close-modal" id="btn-close-login-modal"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL OVERLAY DETAIL LAPORAN KEJADIAN -->
+        <div class="modal-overlay-login" id="modal-laporan-detail">
+            <div style="width: 500px; max-width: 90%; background-color: #0B0E14; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); position: relative; padding: 28px; display: flex; flex-direction: column; gap: 16px;">
+                <button class="btn-close-modal" id="btn-close-laporan-modal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px;"><i class="fa-solid fa-xmark"></i></button>
+                
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--tech-cyan); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin: 0;">
+                    <i class="fa-solid fa-bullhorn"></i> Detail Laporan Kejadian
+                </h3>
+                
+                <div id="laporan-detail-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--text-color);">
+                    <!-- Content will be rendered dynamically by JS -->
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Konfigurasi lokal (config.js tidak di-push ke Git) -->
-    <script src="config.js"></script>
     <!-- Script App Logic -->
     <script src="app.js"></script>
 </body>
+
 </html>

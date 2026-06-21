@@ -1915,7 +1915,6 @@ textarea:focus {
     .recovery-grid,
     .hotline-grid {
         grid-template-columns: 1fr;
-    }
 }
 
 /* ==========================================================================
@@ -2042,6 +2041,11 @@ textarea:focus {
 .leaflet-popup-close-button {
     color: var(--text-muted) !important;
     padding: 8px 8px 0 0 !important;
+}
+
+/* Utilitas Hapus Tampilan */
+.d-none {
+    display: none !important;
 }
 
 
