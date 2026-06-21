@@ -4,6 +4,31 @@
 
 ---
 
+## Cara Menjalankan Aplikasi
+
+### Langkah 1: Jalankan Server Backend (Spring Boot)
+
+Anda dapat menjalankan server backend dengan salah satu dari dua metode berikut:
+
+#### Metode A: Menggunakan Tombol Run/Debug di IDE (Sangat Direkomendasikan & Praktis)
+1. Buka folder proyek di **VS Code** atau **IntelliJ IDEA**.
+2. Pastikan Anda sudah menginstal ekstensi **Extension Pack for Java** di VS Code.
+3. Buka file utama backend: [EmberLordApplication.java](file:///c:/Users/LENOVO/Documents/SEMESTER%204/PBO/UAS/UAS-PBO-FINAL/backend/src/main/java/com/emberlord/EmberLordApplication.java).
+4. Klik tombol **Run** atau **Debug** yang muncul secara otomatis tepat di atas metode `main(String[] args)` (pada baris ke-11).
+
+#### Metode B: Menggunakan Perintah Maven (Terminal)
+Pastikan Anda memiliki Maven terinstal dan terkonfigurasi di Environment Variables (`PATH`), masuk ke direktori `/backend`, lalu jalankan perintah:
+```bash
+mvn spring-boot:run
+```
+
+Setelah server berhasil dijalankan, backend akan aktif dan siap menerima request di **`http://localhost:8080`**.
+
+### Langkah 2: Buka Antarmuka Frontend
+Buka file [index.html](file:///c:/Users/LENOVO/Documents/SEMESTER%204/PBO/UAS/UAS-PBO-FINAL/frontend/index.html) yang terletak di direktori `/frontend` menggunakan browser favorit Anda (atau gunakan ekstensi *Live Server* di VS Code pada port `5500`).
+
+
+
 ## Deskripsi Aplikasi
 
 EmberLord dirancang untuk mempercepat koordinasi bantuan kemanusiaan serta pelaporan darurat saat terjadi bencana (seperti kebakaran hutan, asap pekat, dan evakuasi darurat). Portal ini menyediakan platform transparan bagi donatur untuk menyalurkan dana maupun barang fisik, membantu korban memulihkan dokumen penting yang hilang, dan memberikan sarana bagi masyarakat untuk melaporkan insiden terkini di lapangan secara langsung kepada petugas penyelamat beserta lampiran foto.
@@ -60,15 +85,3 @@ EmberLord dirancang untuk mempercepat koordinasi bantuan kemanusiaan serta pelap
 * **Leaflet JS & FontAwesome**: Rendering peta interaktif dan paket ikon modern.
 
 ---
-
-## Cara Menjalankan Aplikasi
-
-### Langkah 1: Jalankan Server Backend (Spring Boot)
-Pastikan Anda memiliki Maven terinstal, masuk ke direktori `/backend`, lalu jalankan perintah:
-```bash
-mvn spring-boot:run
-```
-Server backend akan berjalan di **`http://localhost:8080`**.
-
-### Langkah 2: Buka Antarmuka Frontend
-Buka file `index.html` yang terletak di direktori `/frontend` menggunakan browser favorit Anda (atau gunakan ekstensi *Live Server* di VS Code pada port `5500`).
