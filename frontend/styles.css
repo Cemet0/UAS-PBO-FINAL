@@ -1915,6 +1915,7 @@ textarea:focus {
     .recovery-grid,
     .hotline-grid {
         grid-template-columns: 1fr;
+    }
 }
 
 /* ==========================================================================
