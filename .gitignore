@@ -21,6 +21,3 @@ apache-maven-*/
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Konfigurasi Sensitif (berisi API key - JANGAN di-push)
-frontend/config.js
