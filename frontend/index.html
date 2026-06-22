@@ -325,7 +325,7 @@
                                     </div>
                                     <span class="need-details">Kekurangan kritis akibat curah hujan tinggi</span>
                                 </div>
-                                <button class="btn-secondary-outline w-100 mt-3">Lihat Daftar Lengkap Logistik <i
+                                <button class="btn-secondary-outline w-100 mt-3" id="btn-lihat-logistik">Lihat Daftar Lengkap Logistik <i
                                         class="fa-solid fa-arrow-right"></i></button>
                             </div>
                         </div>
@@ -469,10 +469,27 @@
                         <div class="card-component" id="card-donasi-barang">
                             <div class="card-header justify-between">
                                 <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan
-                                    Donasi Barang (Real-Time CRUD)</h3>
+                                    Donasi Barang </h3>
                                 <div class="header-actions">
                                     <button class="btn-refresh" id="btn-refresh-donasi"><i
                                             class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                                </div>
+                            </div>
+                            <!-- Kontrol Filter, Search & Ekspor Donasi Barang -->
+                            <div class="table-controls-row">
+                                <div class="search-wrapper" style="flex: 1; min-width: 200px; background-color: #07090C;">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="search-donasi-nama" placeholder="Cari nama donatur...">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filter-donasi-status">Status Kirim:</label>
+                                    <select id="filter-donasi-status">
+                                        <option value="">Semua Status</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Diproses">Diproses</option>
+                                        <option value="Dikirim">Dikirim</option>
+                                        <option value="Diterima">Diterima</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="table-responsive">
@@ -502,10 +519,26 @@
                         <div class="card-component d-none" id="card-donasi-dana">
                             <div class="card-header justify-between">
                                 <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan
-                                    Donasi Dana Tunai (Real-Time CRUD)</h3>
+                                    Donasi Dana Tunai </h3>
                                 <div class="header-actions">
                                     <button class="btn-refresh" id="btn-refresh-donasi-dana"><i
                                             class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                                </div>
+                            </div>
+                            <!-- Kontrol Filter, Search & Ekspor Donasi Dana -->
+                            <div class="table-controls-row">
+                                <div class="search-wrapper" style="flex: 1; min-width: 200px; background-color: #07090C;">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="search-donasi-dana-nama" placeholder="Cari nama donatur...">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filter-donasi-dana-status">Status Transaksi:</label>
+                                    <select id="filter-donasi-dana-status">
+                                        <option value="">Semua Status</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Berhasil">Berhasil</option>
+                                        <option value="Gagal">Gagal</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="table-responsive">
@@ -734,6 +767,24 @@
                             <h3 class="card-title"><i class="fa-solid fa-users"></i> Profil Korban Terdaftar </h3>
                             <button class="btn-refresh" id="btn-refresh-korban"><i
                                     class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                        </div>
+                        <!-- Kontrol Filter, Search & Ekspor Korban -->
+                        <div class="table-controls-row">
+                            <div class="search-wrapper" style="flex: 1; min-width: 200px; background-color: #07090C;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="search-korban-nama" placeholder="Cari nama korban...">
+                            </div>
+                            <div class="filter-group">
+                                <label for="filter-korban-kelompok">Kelompok:</label>
+                                <select id="filter-korban-kelompok">
+                                    <option value="">Semua Kelompok</option>
+                                    <option value="Tidak Ada">Tidak Ada (Umum)</option>
+                                    <option value="Balita">Balita</option>
+                                    <option value="Lansia">Lansia</option>
+                                    <option value="Ibu Hamil">Ibu Hamil / Menyusui</option>
+                                    <option value="Disabilitas">Penyandang Disabilitas</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="custom-table" id="table-korban">
@@ -1034,6 +1085,53 @@
                 
                 <div id="laporan-detail-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--text-color);">
                     <!-- Content will be rendered dynamically by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL OVERLAY LIHAT DAFTAR LENGKAP LOGISTIK -->
+        <div class="modal-overlay-login" id="modal-logistik">
+            <div style="width: 800px; max-width: 95%; background-color: #0B0E14; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); position: relative; padding: 28px; display: flex; flex-direction: column; gap: 16px;">
+                <button class="btn-close-modal" id="btn-close-logistik-modal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px;"><i class="fa-solid fa-xmark"></i></button>
+                
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--tech-cyan); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin: 0;">
+                    <i class="fa-solid fa-list-check"></i> Daftar Lengkap Kebutuhan Logistik
+                </h3>
+                
+                <!-- Kontrol Pencarian & Filter Logistik -->
+                <div class="table-controls-row">
+                    <div class="search-wrapper" style="flex: 1; min-width: 200px; background-color: #07090C;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-logistik" placeholder="Cari nama barang logistik...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-priority-logistik">Prioritas:</label>
+                        <select id="filter-priority-logistik">
+                            <option value="">Semua Prioritas</option>
+                            <option value="Kritis">Kritis</option>
+                            <option value="Tinggi">Tinggi</option>
+                            <option value="Sedang">Sedang</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                    <table class="custom-table" id="table-logistik-lengkap">
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Dibutuhkan (Target)</th>
+                                <th>Terpenuhi</th>
+                                <th>Sisa Kekurangan</th>
+                                <th>Tujuan / Lokasi Posko</th>
+                                <th>Prioritas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-logistik-lengkap">
+                            <!-- Data akan diisi secara dinamis oleh JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

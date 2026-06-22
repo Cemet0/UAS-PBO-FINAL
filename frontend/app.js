@@ -11,6 +11,27 @@ let currentEditingDonasiId = null;
 let currentEditingDonasiDanaId = null;
 let currentEditingKorbanId = null;
 
+// Cache data global untuk filtering, searching, dan ekspor
+let listKorban = [];
+let listDonasiBarang = [];
+let listDonasiDana = [];
+let listLaporan = [];
+
+// Data Kebutuhan Logistik Lengkap Mock
+const LIST_LOGISTIK_LENGKAP = [
+    { nama: "Popok Bayi (Pack)", target: 50, terpenuhi: 35, posko: "Posko Sektor A (Pengungsian Balita)", prioritas: "Tinggi" },
+    { nama: "Selimut Hangat", target: 100, terpenuhi: 40, posko: "Sektor C (Lansia)", prioritas: "Tinggi" },
+    { nama: "Paket Sembako Ready-to-Eat", target: 200, terpenuhi: 170, posko: "Posko Induk (Relawan)", prioritas: "Sedang" },
+    { nama: "Tenda Darurat Keluarga", target: 15, terpenuhi: 3, posko: "Sektor B", prioritas: "Kritis" },
+    { nama: "Masker N95 (Box)", target: 80, terpenuhi: 80, posko: "Posko Sektor A & B", prioritas: "Selesai" },
+    { nama: "Obat-obatan / Parasetamol (Box)", target: 40, terpenuhi: 10, posko: "Posko Medis Sektor B", prioritas: "Tinggi" },
+    { nama: "Air Mineral (Dus)", target: 500, terpenuhi: 450, posko: "Semua Posko Evakuasi", prioritas: "Tinggi" },
+    { nama: "Susu Bayi & Balita (Kaleng)", target: 60, terpenuhi: 20, posko: "Posko Sektor A", prioritas: "Tinggi" },
+    { nama: "Pakaian Layak Pakai (Paket)", target: 150, terpenuhi: 150, posko: "Balai Desa", prioritas: "Selesai" },
+    { nama: "Kasur Lipat", target: 80, terpenuhi: 30, posko: "GOR Pemuda & Balai Desa", prioritas: "Tinggi" },
+    { nama: "Alat Mandi / Sabun & Pasta Gigi", target: 120, terpenuhi: 60, posko: "Semua Posko Evakuasi", prioritas: "Sedang" }
+];
+
 // Variabel Global Peta Leaflet
 let map = null;
 let currentTileLayer = null;
@@ -28,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDonationTabs();
     initIncidentPhotoUpload();
     initLaporanDetailModal();
+    initLogistikModal(); // Inisialisasi modal logistik lengkap
     
     // Muat data awal dari API backend
     fetchDonasi();
@@ -53,6 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Filter pencarian global sederhana
     document.getElementById('global-search').addEventListener('input', handleGlobalSearch);
+
+    // Event listeners untuk Filter & Search tabel Korban
+    document.getElementById('search-korban-nama').addEventListener('input', applyKorbanFilters);
+    document.getElementById('filter-korban-kelompok').addEventListener('change', applyKorbanFilters);
+
+    // Event listeners untuk Filter & Search tabel Donasi Barang
+    document.getElementById('search-donasi-nama').addEventListener('input', applyDonasiBarangFilters);
+    document.getElementById('filter-donasi-status').addEventListener('change', applyDonasiBarangFilters);
+
+    // Event listeners untuk Filter & Search tabel Donasi Dana
+    document.getElementById('search-donasi-dana-nama').addEventListener('input', applyDonasiDanaFilters);
+    document.getElementById('filter-donasi-dana-status').addEventListener('change', applyDonasiDanaFilters);
 });
 
 /* ==========================================================================
@@ -104,7 +138,8 @@ async function fetchDonasi() {
         if (!response.ok) throw new Error('Gagal mengambil data donasi');
         
         const donasiList = await response.json();
-        renderDonasiTable(donasiList);
+        listDonasiBarang = donasiList; // Cache data ke state global
+        applyDonasiBarangFilters();    // Terapkan filter & render table
     } catch (error) {
         console.error('Error fetchDonasi:', error);
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red">
@@ -293,7 +328,8 @@ async function fetchDonasiDana() {
         if (!response.ok) throw new Error('Gagal mengambil data donasi dana');
         
         const donasiDanaList = await response.json();
-        renderDonasiDanaTable(donasiDanaList);
+        listDonasiDana = donasiDanaList;    // Cache data ke state global
+        applyDonasiDanaFilters();           // Terapkan filter & render table
         updateFinancialStats(donasiDanaList);
     } catch (error) {
         console.error('Error fetchDonasiDana:', error);
@@ -478,7 +514,8 @@ async function fetchKorban() {
         if (!response.ok) throw new Error('Gagal mengambil data korban');
         
         const korbanList = await response.json();
-        renderKorbanTable(korbanList);
+        listKorban = korbanList;   // Cache data ke state global
+        applyKorbanFilters();      // Terapkan filter & render table
     } catch (error) {
         console.error('Error fetchKorban:', error);
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-red">
@@ -819,38 +856,94 @@ function initChatbot() {
         }
     });
 
-    // Kirim pesan
-    function sendChatMessage() {
+    // ── Konfigurasi GitHub Models ──────────────────────────────────────────
+    const GITHUB_TOKEN   = "";
+    const GITHUB_MODEL   = "llama3.2";
+    const GITHUB_API_URL = "http://localhost:11434/v1/chat/completions";
+
+    const SYSTEM_PROMPT = `Kamu adalah EmberBot, asisten AI resmi aplikasi EmberLord — platform respons bencana darurat.
+Tugasmu membantu korban bencana, relawan, dan donatur dengan informasi yang akurat, cepat, dan empatik.
+
+Konteks aplikasi EmberLord:
+- Posko aktif: GOR Pemuda (142 slot), Masjid Al-Ikhlas (300+ slot), Balai Desa
+- Logistik mendesak: Popok Bayi (70%), Selimut Hangat (40%), Tenda Darurat (20%)
+- Layanan: Registrasi Korban, Portal Donasi Barang & Dana, Pemulihan Dokumen, Hotline Darurat
+- Dukcapil Keliling: Posko 3 Sukamaju pukul 08:00-12:00 WIB
+
+Jawab dalam Bahasa Indonesia yang ramah, jelas, dan ringkas.`;
+
+    // Riwayat percakapan untuk konteks multi-turn
+    let chatHistory = [];
+
+    // Kirim pesan ke GitHub Models API
+    async function sendChatMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
 
-        // Tambah pesan user
         appendMessage('user', text);
         chatInput.value = '';
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
 
-        // Tampilkan indikator mengetik
         const typingId = appendTypingIndicator();
         messagesBody.scrollTop = messagesBody.scrollHeight;
 
-        // Simulasi respon bot Gemini Flash (1.2 detik delay)
-        setTimeout(() => {
+        // Tambah pesan user ke riwayat
+        chatHistory.push({ role: "user", content: text });
+
+        try {
+            const response = await fetch(GITHUB_API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${GITHUB_TOKEN}`
+                },
+                body: JSON.stringify({
+                    model: GITHUB_MODEL,
+                    messages: [
+                        { role: "system", content: SYSTEM_PROMPT },
+                        ...chatHistory
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 512
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            const balasan = data.choices[0].message.content;
+
+            // Simpan balasan ke riwayat (max 20 pesan terakhir)
+            chatHistory.push({ role: "assistant", content: balasan });
+            if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
             removeTypingIndicator(typingId);
-            const responseText = getBotResponse(text);
-            appendMessage('bot', responseText);
+            appendMessage('bot', balasan.replace(/\n/g, '<br>'));
+
+        } catch (error) {
+            console.error('EmberBot error:', error);
+            removeTypingIndicator(typingId);
+            appendMessage('bot', `⚠️ EmberBot gangguan: <b>${error.message}</b>.<br>Pastikan token GitHub sudah benar.`);
+        } finally {
+            chatInput.disabled = false;
+            sendBtn.disabled = false;
+            chatInput.focus();
             messagesBody.scrollTop = messagesBody.scrollHeight;
-        }, 1200);
+        }
     }
 
     function appendMessage(sender, content) {
         const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${sender}-message`;
-        
         msgDiv.innerHTML = `
             <p>${content}</p>
             <span class="message-time">${time}</span>
         `;
-        
         messagesBody.appendChild(msgDiv);
     }
 
@@ -869,42 +962,6 @@ function initChatbot() {
     function removeTypingIndicator(id) {
         const el = document.getElementById(id);
         if (el) el.remove();
-    }
-
-    // Generator respon bot taktis berbasis kata kunci
-    function getBotResponse(query) {
-        const cleanQuery = query.toLowerCase();
-        
-        if (cleanQuery.includes('posko') || cleanQuery.includes('lokasi') || cleanQuery.includes('tempat') || cleanQuery.includes('peta')) {
-            return `Posko aman terdekat dari lokasi kebakaran utama saat ini adalah:
-            <br>1. <b>GOR Pemuda</b> (Sisa Kapasitas: 142 Slot - Status: Normal)
-            <br>2. <b>Masjid Al-Ikhlas</b> (Sisa Kapasitas: 300+ Slot - Status: Leluasa)
-            <br><br>Anda dapat melihat lokasinya secara visual di tab <b>'Peta Informasi & Posko'</b>.`;
-        }
-        
-        if (cleanQuery.includes('logistik') || cleanQuery.includes('donasi') || cleanQuery.includes('barang') || cleanQuery.includes('bantuan')) {
-            return `Kebutuhan logistik darurat yang mendesak saat ini:
-            <br>• Popok Bayi (70% terpenuhi)
-            <br>• Selimut Hangat (40% terpenuhi)
-            <br>• Tenda Darurat Keluarga (20% terpenuhi)
-            <br><br>Anda dapat mendaftarkan bantuan barang logistik Anda langsung melalui form di tab <b>'Portal Donasi Terbuka'</b> untuk pelacakan transparan.`;
-        }
-        
-        if (cleanQuery.includes('dokumen') || cleanQuery.includes('ktp') || cleanQuery.includes('kk') || cleanQuery.includes('hilang') || cleanQuery.includes('surat')) {
-            return `Untuk mengurus dokumen yang hilang/rusak akibat bencana:
-            <br>1. Daftarkan profil korban di menu <b>'Pusat Pemulihan Dokumen'</b>.
-            <br>2. Gunakan menu Wizard Pemulihan untuk E-KTP atau KK.
-            <br>3. Unit Dukcapil Keliling akan berada di <b>Posko 3 Sukamaju</b> besok pukul 08:00 - 12:00 WIB untuk membantu cetak fisik dokumen Anda.`;
-        }
-
-        if (cleanQuery.includes('halo') || cleanQuery.includes('hai') || cleanQuery.includes('pagi') || cleanQuery.includes('siang') || cleanQuery.includes('sore') || cleanQuery.includes('malam')) {
-            return `Halo! Ada yang bisa saya bantu terkait logistik, posko evakuasi, atau pemulihan dokumen hari ini?`;
-        }
-
-        return `Pertanyaan Anda diterima. Saya menyarankan Anda untuk:
-        <br>• Mengisi <b>Formulir Registrasi Korban</b> jika Anda membutuhkan posko dan bantuan harian.
-        <br>• Membuka <b>Hotline Pengaduan</b> untuk mengontak Damkar atau BASARNAS jika mendesak.
-        <br>• Menghubungi pusat posko terdekat untuk info logistik.`;
     }
 }
 
@@ -938,6 +995,10 @@ function initIncidentPhotoUpload() {
     dragDropZone.addEventListener('click', (e) => {
         if (e.target === fileInput || e.target.closest('#photo-preview-container')) return;
         fileInput.click();
+    });
+
+    fileInput.addEventListener('click', (e) => {
+        e.stopPropagation();
     });
 
     // Handle file change
@@ -1001,6 +1062,15 @@ function initIncidentPhotoUpload() {
         previewContainer.classList.add('d-none');
         promptContainer.classList.remove('d-none');
     };
+
+    // Auto-load mock photo if URL parameter mockPhoto=true is present (for testing/subagent verification)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mockPhoto') === 'true') {
+        currentUploadedPhotoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+        previewImg.src = currentUploadedPhotoBase64;
+        promptContainer.classList.add('d-none');
+        previewContainer.classList.remove('d-none');
+    }
 }
 
 // Inisialisasi Modal Detail
@@ -1060,6 +1130,7 @@ async function fetchLaporan() {
         if (!response.ok) throw new Error('Gagal mengambil data laporan kejadian');
         
         const laporanList = await response.json();
+        listLaporan = laporanList; // Cache data ke state global
         renderLaporanTable(laporanList);
     } catch (error) {
         console.error('Error fetchLaporan:', error);
@@ -1418,4 +1489,131 @@ function focusOnUserLocation() {
             }
         );
     }
+}
+
+/* ==========================================================================
+   KONTROL FILTER & SEARCHING TABEL (DASHBOARD REAL-TIME UPDATE)
+   ========================================================================== */
+
+// 1. FILTER & SEARCH KORBAN
+function applyKorbanFilters() {
+    const searchQuery = document.getElementById('search-korban-nama').value.toLowerCase();
+    const kelompokFilter = document.getElementById('filter-korban-kelompok').value;
+
+    const filteredList = listKorban.filter(korban => {
+        const matchesName = korban.nama.toLowerCase().includes(searchQuery);
+        const matchesKelompok = !kelompokFilter || korban.kelompokRentan === kelompokFilter;
+        return matchesName && matchesKelompok;
+    });
+
+    renderKorbanTable(filteredList);
+}
+
+// 2. FILTER & SEARCH DONASI BARANG
+function applyDonasiBarangFilters() {
+    const searchQuery = document.getElementById('search-donasi-nama').value.toLowerCase();
+    const statusFilter = document.getElementById('filter-donasi-status').value;
+
+    const filteredList = listDonasiBarang.filter(donasi => {
+        const matchesName = donasi.namaDonatur.toLowerCase().includes(searchQuery);
+        const matchesStatus = !statusFilter || donasi.statusPengiriman === statusFilter;
+        return matchesName && matchesStatus;
+    });
+
+    renderDonasiTable(filteredList);
+}
+
+// 3. FILTER & SEARCH DONASI DANA
+function applyDonasiDanaFilters() {
+    const searchQuery = document.getElementById('search-donasi-dana-nama').value.toLowerCase();
+    const statusFilter = document.getElementById('filter-donasi-dana-status').value;
+
+    const filteredList = listDonasiDana.filter(donasi => {
+        const matchesName = donasi.namaDonatur.toLowerCase().includes(searchQuery);
+        const matchesStatus = !statusFilter || donasi.statusTransaksi === statusFilter;
+        return matchesName && matchesStatus;
+    });
+
+    renderDonasiDanaTable(filteredList);
+}
+
+// 4. MODAL LOGISTIK LENGKAP
+function initLogistikModal() {
+    const modal = document.getElementById('modal-logistik');
+    const openBtn = document.getElementById('btn-lihat-logistik');
+    const closeBtn = document.getElementById('btn-close-logistik-modal');
+    const searchInput = document.getElementById('search-logistik');
+    const filterSelect = document.getElementById('filter-priority-logistik');
+
+    if (openBtn && modal && closeBtn) {
+        openBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+            renderLogistikLengkap();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value;
+            const priority = filterSelect.value;
+            renderLogistikLengkap(query, priority);
+        });
+    }
+
+    if (filterSelect) {
+        filterSelect.addEventListener('change', () => {
+            const query = searchInput.value;
+            const priority = filterSelect.value;
+            renderLogistikLengkap(query, priority);
+        });
+    }
+}
+
+function renderLogistikLengkap(query = '', priorityFilter = '') {
+    const tbody = document.getElementById('tbody-logistik-lengkap');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const q = query.toLowerCase();
+    const filteredList = LIST_LOGISTIK_LENGKAP.filter(item => {
+        const matchesName = item.nama.toLowerCase().includes(q);
+        const matchesPriority = !priorityFilter || item.prioritas === priorityFilter;
+        return matchesName && matchesPriority;
+    });
+
+    if (filteredList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Barang logistik tidak ditemukan.</td></tr>';
+        return;
+    }
+
+    filteredList.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        let priorityClass = 'status-success'; // Selesai
+        if (item.prioritas === 'Kritis') priorityClass = 'status-danger';
+        else if (item.prioritas === 'Tinggi') priorityClass = 'status-warning';
+        else if (item.prioritas === 'Sedang') priorityClass = 'status-warning';
+        else if (item.prioritas === 'Selesai') priorityClass = 'status-success';
+
+        const sisa = Math.max(0, item.target - item.terpenuhi);
+        const statusText = item.prioritas.toUpperCase();
+
+        tr.innerHTML = `
+            <td><b>${escapeHTML(item.nama)}</b></td>
+            <td><span class="value-highlight">${item.target} Unit</span></td>
+            <td><span class="text-green">${item.terpenuhi} Unit</span></td>
+            <td><span class="${sisa > 0 ? 'text-red font-bold' : 'text-green'}">${sisa} Unit</span></td>
+            <td><span class="text-muted">${escapeHTML(item.posko)}</span></td>
+            <td><span class="badge-status ${priorityClass}">${statusText}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
 }

@@ -2048,4 +2048,74 @@ textarea:focus {
     display: none !important;
 }
 
+/* ==========================================================================
+   KONTROL FILTER & EKSPOR DATA TABEL (DASHBOARD UPDATE)
+   ========================================================================== */
+.table-controls-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: rgba(7, 9, 12, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.filter-group select {
+    background-color: #07090C;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.filter-group select:focus {
+    border-color: var(--tech-cyan);
+    box-shadow: 0 0 8px rgba(0, 210, 255, 0.2);
+}
+
+.export-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .export-buttons {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+    }
+    .table-controls-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .filter-group select {
+        flex-grow: 1;
+    }
+}
+
 
