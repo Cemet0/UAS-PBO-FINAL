@@ -5,6 +5,7 @@ import com.emberlord.repository.LaporanKejadianRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +29,7 @@ public class LaporanKejadianController {
      * POST /api/laporan-kejadian
      */
     @PostMapping
-    public LaporanKejadian createLaporan(@RequestBody LaporanKejadian laporan) {
+    public LaporanKejadian createLaporan(@Valid @RequestBody LaporanKejadian laporan) {
         // Set status awal jika kosong
         if (laporan.getStatusLaporan() == null || laporan.getStatusLaporan().trim().isEmpty()) {
             laporan.setStatusLaporan("Pending");
@@ -70,7 +71,7 @@ public class LaporanKejadianController {
      * PUT /api/laporan-kejadian/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<LaporanKejadian> updateLaporan(@PathVariable Long id, @RequestBody LaporanKejadian laporanDetails) {
+    public ResponseEntity<LaporanKejadian> updateLaporan(@PathVariable Long id, @Valid @RequestBody LaporanKejadian laporanDetails) {
         Optional<LaporanKejadian> optionalLaporan = laporanKejadianRepository.findById(id);
         if (optionalLaporan.isPresent()) {
             LaporanKejadian laporan = optionalLaporan.get();

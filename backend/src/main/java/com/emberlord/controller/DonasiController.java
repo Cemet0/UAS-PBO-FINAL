@@ -5,6 +5,7 @@ import com.emberlord.repository.DonasiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public class DonasiController {
      * POST /api/donasi
      */
     @PostMapping
-    public DonasiBarang createDonasi(@RequestBody DonasiBarang donasi) {
+    public DonasiBarang createDonasi(@Valid @RequestBody DonasiBarang donasi) {
         // Set status awal pengiriman jika kosong
         if (donasi.getStatusPengiriman() == null || donasi.getStatusPengiriman().trim().isEmpty()) {
             donasi.setStatusPengiriman("Pending");
@@ -62,7 +63,7 @@ public class DonasiController {
      * PUT /api/donasi/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<DonasiBarang> updateDonasi(@PathVariable Long id, @RequestBody DonasiBarang donasiDetails) {
+    public ResponseEntity<DonasiBarang> updateDonasi(@PathVariable Long id, @Valid @RequestBody DonasiBarang donasiDetails) {
         Optional<DonasiBarang> optionalDonasi = donasiRepository.findById(id);
         if (optionalDonasi.isPresent()) {
             DonasiBarang donasi = optionalDonasi.get();

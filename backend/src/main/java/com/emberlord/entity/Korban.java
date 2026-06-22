@@ -1,10 +1,14 @@
 package com.emberlord.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  * Entitas JPA untuk data profil Korban bencana.
@@ -18,11 +22,25 @@ public class Korban {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nama tidak boleh kosong")
     private String nama;
+
+    @JsonProperty("NIK")
+    @Column(name = "nik")
+    @NotBlank(message = "NIK tidak boleh kosong")
+    @Size(min = 16, max = 16, message = "NIK harus 16 digit")
     private String NIK;
+
+    @NotBlank(message = "Nomor KK tidak boleh kosong")
     private String nomorKK;
+
+    @NotBlank(message = "Kelompok rentan tidak boleh kosong")
     private String kelompokRentan;
+
+    @NotBlank(message = "Status rumah tidak boleh kosong")
     private String statusRumah;
+
+    @NotBlank(message = "Alamat asal tidak boleh kosong")
     private String alamatAsal;
 
     // Konstruktor Default (diwajibkan oleh JPA)

@@ -5,6 +5,7 @@ import com.emberlord.repository.KorbanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public class KorbanController {
      * POST /api/korban
      */
     @PostMapping
-    public Korban createKorban(@RequestBody Korban korban) {
+    public Korban createKorban(@Valid @RequestBody Korban korban) {
         return korbanRepository.save(korban);
     }
 
@@ -58,7 +59,7 @@ public class KorbanController {
      * PUT /api/korban/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Korban> updateKorban(@PathVariable Long id, @RequestBody Korban korbanDetails) {
+    public ResponseEntity<Korban> updateKorban(@PathVariable Long id, @Valid @RequestBody Korban korbanDetails) {
         Optional<Korban> optionalKorban = korbanRepository.findById(id);
         if (optionalKorban.isPresent()) {
             Korban korban = optionalKorban.get();

@@ -5,6 +5,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Entitas JPA untuk data Donasi Dana Tunai.
@@ -18,11 +21,20 @@ public class DonasiDana {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nama donatur tidak boleh kosong")
     private String namaDonatur;
+
+    @NotNull(message = "Jumlah dana tidak boleh kosong")
+    @Min(value = 1000, message = "Jumlah dana minimal Rp 1.000")
     private Double jumlahDana;
+
+    @NotBlank(message = "Metode pembayaran tidak boleh kosong")
     private String metodePembayaran;
+
     private String statusTransaksi;
+
     private String noRekeningHp;
+
     private String peruntukanDana;
 
     // Konstruktor Default (diwajibkan oleh JPA)

@@ -5,6 +5,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Entitas JPA untuk data Donasi Barang logistik.
@@ -18,9 +21,16 @@ public class DonasiBarang {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nama donatur tidak boleh kosong")
     private String namaDonatur;
+
+    @NotBlank(message = "Nama barang tidak boleh kosong")
     private String namaBarang;
+
+    @NotNull(message = "Jumlah tidak boleh kosong")
+    @Min(value = 1, message = "Jumlah minimal 1 unit")
     private Integer jumlah;
+
     private String statusPengiriman;
 
     // Konstruktor Default (diwajibkan oleh JPA)
