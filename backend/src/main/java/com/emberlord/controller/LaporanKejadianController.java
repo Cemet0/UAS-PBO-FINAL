@@ -34,6 +34,10 @@ public class LaporanKejadianController {
         if (laporan.getStatusLaporan() == null || laporan.getStatusLaporan().trim().isEmpty()) {
             laporan.setStatusLaporan("Pending");
         }
+        // Set estimasi korban default 0 jika tidak diisi
+        if (laporan.getEstimasiKorban() == null) {
+            laporan.setEstimasiKorban(0);
+        }
         // Set waktu lapor jika kosong
         if (laporan.getWaktuLapor() == null || laporan.getWaktuLapor().trim().isEmpty()) {
             LocalTime now = LocalTime.now();

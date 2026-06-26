@@ -8,7 +8,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * Entitas JPA untuk data Laporan Kejadian bencana.
@@ -28,7 +27,6 @@ public class LaporanKejadian {
     @NotBlank(message = "Kondisi kejadian tidak boleh kosong")
     private String kondisi;
 
-    @NotNull(message = "Estimasi korban tidak boleh kosong")
     @Min(value = 0, message = "Estimasi korban tidak boleh negatif")
     private Integer estimasiKorban;
 

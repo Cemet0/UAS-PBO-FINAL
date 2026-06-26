@@ -3,8 +3,8 @@
    Bahasa Komentar: Bahasa Indonesia
    ========================================================================== */
 
-// Konfigurasi Endpoint REST API Java Spring Boot
-const API_BASE_URL = 'http://localhost:8080/api';
+// Konfigurasi Endpoint REST API Java Spring Boot (lihat config.js)
+const API_BASE_URL = (typeof CONFIG !== 'undefined') ? CONFIG.API_BASE_URL : 'http://localhost:8080/api';
 
 // State global aplikasi
 let currentEditingDonasiId = null;
@@ -566,7 +566,7 @@ async function handleKorbanSubmit(e) {
     const statusRumah = document.getElementById('korban-rumah').value;
     const alamatAsal = document.getElementById('korban-alamat').value;
     
-    const korbanData = { nama, NIK, nomorKK, kelompokRentan, statusRumah, alamatAsal };
+    const korbanData = { nama, nik: NIK, nomorKK, kelompokRentan, statusRumah, alamatAsal };
     
     try {
         let response;
@@ -856,10 +856,10 @@ function initChatbot() {
         }
     });
 
-    // ── Konfigurasi GitHub Models ──────────────────────────────────────────
-    const GITHUB_TOKEN   = "";
-    const GITHUB_MODEL   = "llama3.2";
-    const GITHUB_API_URL = "http://localhost:11434/v1/chat/completions";
+    // ── Konfigurasi GitHub Models (lihat config.js) ───────────────────────
+    const GITHUB_TOKEN   = (typeof CONFIG !== 'undefined') ? CONFIG.GITHUB_TOKEN : "";
+    const GITHUB_MODEL   = (typeof CONFIG !== 'undefined') ? CONFIG.GITHUB_MODEL : "llama3.2";
+    const GITHUB_API_URL = (typeof CONFIG !== 'undefined') ? CONFIG.GITHUB_API_URL : "http://localhost:11434/v1/chat/completions";
 
     const SYSTEM_PROMPT = `Kamu adalah EmberBot, asisten AI resmi aplikasi EmberLord — platform respons bencana darurat.
 Tugasmu membantu korban bencana, relawan, dan donatur dengan informasi yang akurat, cepat, dan empatik.

@@ -64,7 +64,7 @@ public class KorbanController {
         if (optionalKorban.isPresent()) {
             Korban korban = optionalKorban.get();
             korban.setNama(korbanDetails.getNama());
-            korban.setNIK(korbanDetails.getNIK());
+            korban.setNik(korbanDetails.getNik());
             korban.setNomorKK(korbanDetails.getNomorKK());
             korban.setKelompokRentan(korbanDetails.getKelompokRentan());
             korban.setStatusRumah(korbanDetails.getStatusRumah());

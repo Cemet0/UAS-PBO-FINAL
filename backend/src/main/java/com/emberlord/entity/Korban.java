@@ -1,7 +1,5 @@
 package com.emberlord.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,11 +23,9 @@ public class Korban {
     @NotBlank(message = "Nama tidak boleh kosong")
     private String nama;
 
-    @JsonProperty("NIK")
-    @Column(name = "nik")
     @NotBlank(message = "NIK tidak boleh kosong")
     @Size(min = 16, max = 16, message = "NIK harus 16 digit")
-    private String NIK;
+    private String nik;
 
     @NotBlank(message = "Nomor KK tidak boleh kosong")
     private String nomorKK;
@@ -48,10 +44,10 @@ public class Korban {
     }
 
     // Konstruktor Lengkap
-    public Korban(Long id, String nama, String NIK, String nomorKK, String kelompokRentan, String statusRumah, String alamatAsal) {
+    public Korban(Long id, String nama, String nik, String nomorKK, String kelompokRentan, String statusRumah, String alamatAsal) {
         this.id = id;
         this.nama = nama;
-        this.NIK = NIK;
+        this.nik = nik;
         this.nomorKK = nomorKK;
         this.kelompokRentan = kelompokRentan;
         this.statusRumah = statusRumah;
@@ -75,12 +71,12 @@ public class Korban {
         this.nama = nama;
     }
 
-    public String getNIK() {
-        return NIK;
+    public String getNik() {
+        return nik;
     }
 
-    public void setNIK(String NIK) {
-        this.NIK = NIK;
+    public void setNik(String nik) {
+        this.nik = nik;
     }
 
     public String getNomorKK() {

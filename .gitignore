@@ -17,6 +17,11 @@ apache-maven-*/
 .project
 .factorypath
 
+# Berkas Konfigurasi Environment (.env)
+.env
+.env.local
+frontend/config.local.js
+
 # Berkas Sistem Operasi
 .DS_Store
 Thumbs.db
