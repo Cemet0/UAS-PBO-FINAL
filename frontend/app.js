@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initIncidentPhotoUpload();
     initLaporanDetailModal();
     initLogistikModal(); // Inisialisasi modal logistik lengkap
-    
+
     // Muat data awal dari API backend
     fetchDonasi();
     fetchDonasiDana();
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-refresh-donasi').addEventListener('click', fetchDonasi);
     document.getElementById('btn-refresh-donasi-dana').addEventListener('click', fetchDonasiDana);
     document.getElementById('btn-refresh-korban').addEventListener('click', fetchKorban);
-    
+
     // Batalkan pengeditan
     document.getElementById('btn-cancel-edit-donasi').addEventListener('click', cancelDonasiEdit);
     document.getElementById('btn-cancel-edit-donasi-dana').addEventListener('click', cancelDonasiDanaEdit);
@@ -132,11 +132,11 @@ function initSPARouter() {
 async function fetchDonasi() {
     const tbody = document.getElementById('tbody-donasi');
     tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungi server backend...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/donasi`);
         if (!response.ok) throw new Error('Gagal mengambil data donasi');
-        
+
         const donasiList = await response.json();
         listDonasiBarang = donasiList; // Cache data ke state global
         applyDonasiBarangFilters();    // Terapkan filter & render table
@@ -153,15 +153,15 @@ async function fetchDonasi() {
 function renderDonasiTable(donasiList) {
     const tbody = document.getElementById('tbody-donasi');
     tbody.innerHTML = '';
-    
+
     if (donasiList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada komitmen donasi barang terdaftar.</td></tr>';
         return;
     }
-    
+
     donasiList.forEach(donasi => {
         const tr = document.createElement('tr');
-        
+
         // Pilih badge berdasarkan status pengiriman
         let badgeClass = 'status-warning';
         if (donasi.statusPengiriman === 'Pending') badgeClass = 'status-danger';
@@ -187,14 +187,14 @@ function renderDonasiTable(donasiList) {
 // CREATE / UPDATE: Submit form komitmen donasi
 async function handleDonasiSubmit(e) {
     e.preventDefault();
-    
+
     const namaDonatur = document.getElementById('donasi-donatur').value;
     const namaBarang = document.getElementById('donasi-barang').value;
     const jumlah = parseInt(document.getElementById('donasi-jumlah').value);
     const statusPengiriman = document.getElementById('donasi-status').value;
-    
+
     const donasiData = { namaDonatur, namaBarang, jumlah, statusPengiriman };
-    
+
     try {
         let response;
         if (currentEditingDonasiId) {
@@ -212,9 +212,9 @@ async function handleDonasiSubmit(e) {
                 body: JSON.stringify(donasiData)
             });
         }
-        
+
         if (!response.ok) throw new Error('Gagal mengirim komitmen donasi ke database');
-        
+
         // Reset form & reload data
         document.getElementById('form-donasi').reset();
         cancelDonasiEdit();
@@ -231,21 +231,21 @@ async function editDonasi(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/donasi/${id}`);
         if (!response.ok) throw new Error('Gagal mengambil detail donasi');
-        
+
         const donasi = await response.json();
-        
+
         // Isi nilai input form
         document.getElementById('donasi-id').value = donasi.id;
         document.getElementById('donasi-donatur').value = donasi.namaDonatur;
         document.getElementById('donasi-barang').value = donasi.namaBarang;
         document.getElementById('donasi-jumlah').value = donasi.jumlah;
         document.getElementById('donasi-status').value = donasi.statusPengiriman;
-        
+
         // Set mode edit
         currentEditingDonasiId = donasi.id;
         document.getElementById('btn-submit-donasi').innerHTML = '<i class="fa-solid fa-pen-fancy"></i> PERBARUI DONASI';
         document.getElementById('btn-cancel-edit-donasi').classList.remove('d-none');
-        
+
         // Scroll ke form
         document.getElementById('form-donasi').scrollIntoView({ behavior: 'smooth' });
     } catch (error) {
@@ -266,14 +266,14 @@ function cancelDonasiEdit() {
 // DELETE: Membatalkan/menghapus donasi barang
 async function deleteDonasi(id) {
     if (!confirm('Apakah Anda yakin ingin membatalkan/menghapus komitmen donasi ini?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/donasi/${id}`, {
             method: 'DELETE'
         });
-        
+
         if (!response.ok) throw new Error('Gagal menghapus donasi dari server');
-        
+
         fetchDonasi();
         alert('Klaim pembatalan donasi diproses, entri berhasil dihapus.');
     } catch (error) {
@@ -322,11 +322,11 @@ async function fetchDonasiDana() {
     const tbody = document.getElementById('tbody-donasi-dana');
     if (!tbody) return;
     tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungi server backend...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/donasi-dana`);
         if (!response.ok) throw new Error('Gagal mengambil data donasi dana');
-        
+
         const donasiDanaList = await response.json();
         listDonasiDana = donasiDanaList;    // Cache data ke state global
         applyDonasiDanaFilters();           // Terapkan filter & render table
@@ -345,15 +345,15 @@ function renderDonasiDanaTable(donasiDanaList) {
     const tbody = document.getElementById('tbody-donasi-dana');
     if (!tbody) return;
     tbody.innerHTML = '';
-    
+
     if (donasiDanaList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada komitmen donasi dana tunai terdaftar.</td></tr>';
         return;
     }
-    
+
     donasiDanaList.forEach(donasi => {
         const tr = document.createElement('tr');
-        
+
         let badgeClass = 'status-warning';
         if (donasi.statusTransaksi === 'Pending') badgeClass = 'status-danger';
         else if (donasi.statusTransaksi === 'Gagal') badgeClass = 'status-full';
@@ -381,19 +381,19 @@ function updateFinancialStats(donasiDanaList) {
         .filter(d => d.statusTransaksi === 'Berhasil')
         .reduce((sum, d) => sum + d.jumlahDana, 0);
     const finalTotal = baseTotal + totalNew;
-    
+
     const finCards = document.querySelectorAll('.financial-stats-grid .fin-card');
     if (finCards.length >= 3) {
         const totalMasukVal = finCards[0].querySelector('.fin-value');
         if (totalMasukVal) {
             totalMasukVal.textContent = formatRupiah(finalTotal);
         }
-        
+
         const allocCircleVal = finCards[1].querySelector('.alloc-val');
         if (allocCircleVal) {
             allocCircleVal.textContent = (finalTotal / 1000000000).toFixed(2) + 'B';
         }
-        
+
         const pengeluaran = 842100500;
         const sisaSaldo = finalTotal - pengeluaran;
         const sisaSaldoDesc = finCards[2].querySelector('.fin-desc');
@@ -406,16 +406,16 @@ function updateFinancialStats(donasiDanaList) {
 /* CREATE / UPDATE: Submit form komitmen donasi dana */
 async function handleDonasiDanaSubmit(e) {
     e.preventDefault();
-    
+
     const namaDonatur = document.getElementById('donasi-dana-donatur').value;
     const jumlahDana = parseFloat(document.getElementById('donasi-dana-jumlah').value);
     const metodePembayaran = document.getElementById('donasi-dana-metode').value;
     const statusTransaksi = document.getElementById('donasi-dana-status').value;
     const noRekeningHp = document.getElementById('donasi-dana-pengirim').value;
     const peruntukanDana = document.getElementById('donasi-dana-peruntukan').value;
-    
+
     const donasiDanaData = { namaDonatur, jumlahDana, metodePembayaran, statusTransaksi, noRekeningHp, peruntukanDana };
-    
+
     try {
         let response;
         if (currentEditingDonasiDanaId) {
@@ -431,9 +431,9 @@ async function handleDonasiDanaSubmit(e) {
                 body: JSON.stringify(donasiDanaData)
             });
         }
-        
+
         if (!response.ok) throw new Error('Gagal mengirim komitmen donasi dana ke database');
-        
+
         document.getElementById('form-donasi-dana').reset();
         cancelDonasiDanaEdit();
         fetchDonasiDana();
@@ -449,9 +449,9 @@ async function editDonasiDana(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/donasi-dana/${id}`);
         if (!response.ok) throw new Error('Gagal mengambil detail donasi dana');
-        
+
         const donasiDana = await response.json();
-        
+
         document.getElementById('donasi-dana-id').value = donasiDana.id;
         document.getElementById('donasi-dana-donatur').value = donasiDana.namaDonatur;
         document.getElementById('donasi-dana-jumlah').value = donasiDana.jumlahDana;
@@ -459,11 +459,11 @@ async function editDonasiDana(id) {
         document.getElementById('donasi-dana-status').value = donasiDana.statusTransaksi;
         document.getElementById('donasi-dana-pengirim').value = donasiDana.noRekeningHp || '';
         document.getElementById('donasi-dana-peruntukan').value = donasiDana.peruntukanDana || 'Bebas (Dialokasikan Tim)';
-        
+
         currentEditingDonasiDanaId = donasiDana.id;
         document.getElementById('btn-submit-donasi-dana').innerHTML = '<i class="fa-solid fa-pen-fancy"></i> PERBARUI DONASI DANA';
         document.getElementById('btn-cancel-edit-donasi-dana').classList.remove('d-none');
-        
+
         document.getElementById('form-donasi-dana').scrollIntoView({ behavior: 'smooth' });
     } catch (error) {
         console.error('Error editDonasiDana:', error);
@@ -483,14 +483,14 @@ function cancelDonasiDanaEdit() {
 /* DELETE DANA: Membatalkan/menghapus donasi dana */
 async function deleteDonasiDana(id) {
     if (!confirm('Apakah Anda yakin ingin membatalkan/menghapus komitmen donasi dana ini?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/donasi-dana/${id}`, {
             method: 'DELETE'
         });
-        
+
         if (!response.ok) throw new Error('Gagal menghapus donasi dana dari server');
-        
+
         fetchDonasiDana();
         alert('Klaim pembatalan donasi dana diproses, entri berhasil dihapus.');
     } catch (error) {
@@ -508,11 +508,11 @@ async function deleteDonasiDana(id) {
 async function fetchKorban() {
     const tbody = document.getElementById('tbody-korban');
     tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungi server backend...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/korban`);
         if (!response.ok) throw new Error('Gagal mengambil data korban');
-        
+
         const korbanList = await response.json();
         listKorban = korbanList;   // Cache data ke state global
         applyKorbanFilters();      // Terapkan filter & render table
@@ -529,15 +529,15 @@ async function fetchKorban() {
 function renderKorbanTable(korbanList) {
     const tbody = document.getElementById('tbody-korban');
     tbody.innerHTML = '';
-    
+
     if (korbanList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Belum ada profil korban bencana terdaftar.</td></tr>';
         return;
     }
-    
+
     korbanList.forEach(korban => {
         const tr = document.createElement('tr');
-        
+
         tr.innerHTML = `
             <td><span class="text-cyan font-bold">#K-${korban.id}</span></td>
             <td>${escapeHTML(korban.nama)}</td>
@@ -558,16 +558,16 @@ function renderKorbanTable(korbanList) {
 // CREATE / UPDATE: Submit form profil korban
 async function handleKorbanSubmit(e) {
     e.preventDefault();
-    
+
     const nama = document.getElementById('korban-nama').value;
     const NIK = document.getElementById('korban-nik').value;
     const nomorKK = document.getElementById('korban-kk').value;
     const kelompokRentan = document.getElementById('korban-kelompok').value;
     const statusRumah = document.getElementById('korban-rumah').value;
     const alamatAsal = document.getElementById('korban-alamat').value;
-    
+
     const korbanData = { nama, nik: NIK, nomorKK, kelompokRentan, statusRumah, alamatAsal };
-    
+
     try {
         let response;
         if (currentEditingKorbanId) {
@@ -585,9 +585,9 @@ async function handleKorbanSubmit(e) {
                 body: JSON.stringify(korbanData)
             });
         }
-        
+
         if (!response.ok) throw new Error('Gagal menyimpan profil korban');
-        
+
         // Reset form & reload data
         document.getElementById('form-korban').reset();
         cancelKorbanEdit();
@@ -604,9 +604,9 @@ async function editKorban(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/korban/${id}`);
         if (!response.ok) throw new Error('Gagal mengambil data korban');
-        
+
         const korban = await response.json();
-        
+
         // Isi nilai input form
         document.getElementById('korban-id').value = korban.id;
         document.getElementById('korban-nama').value = korban.nama;
@@ -615,13 +615,13 @@ async function editKorban(id) {
         document.getElementById('korban-kelompok').value = korban.kelompokRentan;
         document.getElementById('korban-rumah').value = korban.statusRumah;
         document.getElementById('korban-alamat').value = korban.alamatAsal;
-        
+
         // Set mode edit
         currentEditingKorbanId = korban.id;
         document.getElementById('form-korban-title').innerHTML = '<i class="fa-solid fa-user-pen"></i> Edit Profil Korban';
         document.getElementById('btn-submit-korban').innerHTML = '<i class="fa-solid fa-user-check"></i> SIMPAN PERUBAHAN PROFIL';
         document.getElementById('btn-cancel-edit-korban').classList.remove('d-none');
-        
+
         // Scroll ke form
         document.getElementById('form-korban').scrollIntoView({ behavior: 'smooth' });
     } catch (error) {
@@ -643,14 +643,14 @@ function cancelKorbanEdit() {
 // DELETE: Menghapus data korban
 async function deleteKorban(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus profil korban bencana ini secara permanen?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/korban/${id}`, {
             method: 'DELETE'
         });
-        
+
         if (!response.ok) throw new Error('Gagal menghapus profil dari database');
-        
+
         fetchKorban();
         alert('Data profil korban berhasil dihapus dari database.');
     } catch (error) {
@@ -667,7 +667,7 @@ function initAuthModal() {
     const modal = document.getElementById('modal-login');
     const openBtn = document.getElementById('btn-login-trigger');
     const closeBtn = document.getElementById('btn-close-login-modal');
-    
+
     // Cek status login saat pertama kali dimuat
     const checkLoginStatus = () => {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -682,9 +682,9 @@ function initAuthModal() {
             modal.classList.add('active');
         }
     });
-    
+
     closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    
+
     // Klik di luar area modal untuk menutup
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
@@ -749,7 +749,7 @@ function initAuthModal() {
     // Password Toggle Visibility
     const togglePass = document.getElementById('toggle-password');
     const passInput = document.getElementById('auth-password');
-    
+
     togglePass.addEventListener('click', () => {
         const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passInput.setAttribute('type', type);
@@ -761,11 +761,11 @@ function initAuthModal() {
     document.getElementById('form-auth-submit').addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('auth-email').value;
-        
+
         // Ambil peran yang dipilih
         const isRelawan = roleRelawan.classList.contains('active');
         const roleName = isRelawan ? 'Relawan / Donatur' : 'Korban';
-        
+
         alert(`Autentikasi berhasil sebagai ${roleName} untuk: ${email}. Akses portal darurat diizinkan.`);
         modal.classList.remove('active');
 
@@ -773,23 +773,23 @@ function initAuthModal() {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', roleName);
-        
+
         updateLoginStateUI(true);
     });
 
     function updateLoginStateUI(isLoggedIn) {
         const userBadge = document.getElementById('sidebar-user-badge');
         const loginPrompt = document.getElementById('sidebar-login-prompt');
-        
+
         if (isLoggedIn) {
             userBadge.classList.remove('d-none');
             loginPrompt.classList.add('d-none');
-            
+
             const email = localStorage.getItem('userEmail') || 'Budi Santoso';
             const role = localStorage.getItem('userRole') || 'Korban';
             const userNameEl = userBadge.querySelector('.user-name');
             const userIdEl = userBadge.querySelector('.user-id');
-            
+
             if (email.includes('@')) {
                 const namePart = email.split('@')[0];
                 const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
@@ -799,7 +799,7 @@ function initAuthModal() {
                 userNameEl.textContent = 'Budi Santoso';
                 userIdEl.textContent = 'ID: EL-99203';
             }
-            
+
             // Ubah tombol di navbar atas jadi logout
             if (openBtn) {
                 openBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Keluar';
@@ -809,7 +809,7 @@ function initAuthModal() {
         } else {
             userBadge.classList.add('d-none');
             loginPrompt.classList.remove('d-none');
-            
+
             // Kembalikan tombol di navbar atas jadi masuk
             if (openBtn) {
                 openBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Masuk / Daftar Akun Korban';
@@ -858,16 +858,16 @@ function initChatbot() {
 
     // ── Konfigurasi LLM Provider (lihat config.js) ────────────────────────
     const CFG = typeof CONFIG !== 'undefined' ? CONFIG : {};
-    const LLM_PROVIDER  = CFG.LLM_PROVIDER || 'ollama';
-    const OLLAMA_MODEL  = CFG.OLLAMA_MODEL || 'llama3.2';
-    const OLLAMA_URL    = CFG.OLLAMA_API_URL || 'http://localhost:11434/v1/chat/completions';
-    const OPENAI_KEY    = CFG.OPENAI_API_KEY || '';
-    const OPENAI_MODEL  = CFG.OPENAI_MODEL || 'gpt-4o-mini';
-    const GEMINI_KEY    = CFG.GEMINI_API_KEY || '';
-    const GEMINI_MODEL  = CFG.GEMINI_MODEL || 'gemini-2.0-flash';
-    const GITHUB_TOKEN  = CFG.GITHUB_TOKEN || '';
-    const GITHUB_MODEL  = CFG.GITHUB_MODEL || 'gpt-4o-mini';
-    const GITHUB_URL    = CFG.GITHUB_API_URL || 'https://models.inference.ai.azure.com/chat/completions';
+    const LLM_PROVIDER = CFG.LLM_PROVIDER || 'ollama';
+    const OLLAMA_MODEL = CFG.OLLAMA_MODEL || 'llama3.2';
+    const OLLAMA_URL = CFG.OLLAMA_API_URL || 'http://localhost:11434/v1/chat/completions';
+    const OPENAI_KEY = CFG.OPENAI_API_KEY || '';
+    const OPENAI_MODEL = CFG.OPENAI_MODEL || 'gpt-4o-mini';
+    const GEMINI_KEY = CFG.GEMINI_API_KEY || '';
+    const GEMINI_MODEL = CFG.GEMINI_MODEL || 'gemini-2.5-flash';
+    const GITHUB_TOKEN = CFG.GITHUB_TOKEN || '';
+    const GITHUB_MODEL = CFG.GITHUB_MODEL || 'gpt-4o-mini';
+    const GITHUB_URL = CFG.GITHUB_API_URL || 'https://models.inference.ai.azure.com/chat/completions';
 
     const SYSTEM_PROMPT = `Kamu adalah EmberBot, asisten AI resmi aplikasi EmberLord — platform respons bencana darurat.
 Tugasmu membantu korban bencana, relawan, dan donatur dengan informasi yang akurat, cepat, dan empatik.
@@ -1099,7 +1099,7 @@ function initIncidentPhotoUpload() {
         reader.readAsDataURL(file);
     }
 
-    window.resetPhotoUpload = function() {
+    window.resetPhotoUpload = function () {
         fileInput.value = '';
         currentUploadedPhotoBase64 = null;
         previewImg.src = '';
@@ -1140,21 +1140,21 @@ async function handleLaporanKejadianSubmit(e) {
     const estimasiKorbanInput = document.getElementById('incident-victims').value;
     const estimasiKorban = estimasiKorbanInput ? parseInt(estimasiKorbanInput) : null;
     const foto = currentUploadedPhotoBase64; // Data Base64 dari FileReader
-    
+
     const laporanData = { lokasi, kondisi, estimasiKorban, foto };
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/laporan-kejadian`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(laporanData)
         });
-        
+
         if (!response.ok) throw new Error('Gagal mengirim laporan kejadian ke database');
-        
+
         document.getElementById('form-laporan-kejadian').reset();
         if (window.resetPhotoUpload) window.resetPhotoUpload();
-        
+
         fetchLaporan();
         alert('Laporan Kejadian Berhasil Terkirim secara Resmi! Petugas akan segera memverifikasi laporan Anda.');
     } catch (error) {
@@ -1168,11 +1168,11 @@ async function fetchLaporan() {
     const tbody = document.getElementById('tbody-laporan');
     if (!tbody) return;
     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungi server backend...</td></tr>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/laporan-kejadian`);
         if (!response.ok) throw new Error('Gagal mengambil data laporan kejadian');
-        
+
         const laporanList = await response.json();
         listLaporan = laporanList; // Cache data ke state global
         renderLaporanTable(laporanList);
@@ -1189,28 +1189,28 @@ function renderLaporanTable(laporanList) {
     const tbody = document.getElementById('tbody-laporan');
     if (!tbody) return;
     tbody.innerHTML = '';
-    
+
     if (laporanList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Belum ada laporan kejadian aktif terdaftar.</td></tr>';
         return;
     }
-    
+
     laporanList.forEach(laporan => {
         const tr = document.createElement('tr');
-        
+
         let badgeClass = 'badge-neutral';
         const cond = laporan.kondisi.toLowerCase();
         if (cond.includes('kebakaran') || cond.includes('api') || cond.includes('runtuhan')) {
             badgeClass = 'badge-danger';
         }
-        
+
         let dotClass = 'red-dot'; // Pending / default
         if (laporan.statusLaporan === 'Petugas Menuju Lokasi') {
             dotClass = 'blue-dot';
         } else if (laporan.statusLaporan === 'Selesai') {
             dotClass = 'green-dot';
         }
-        
+
         tr.innerHTML = `
             <td><span class="text-cyan font-bold">#EB-${laporan.id}</span></td>
             <td><span class="category-badge ${badgeClass}">${escapeHTML(laporan.kondisi)}</span></td>
@@ -1230,9 +1230,9 @@ async function viewLaporanDetail(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/laporan-kejadian/${id}`);
         if (!response.ok) throw new Error('Gagal mengambil detail laporan');
-        
+
         const laporan = await response.json();
-        
+
         const contentDiv = document.getElementById('laporan-detail-content');
         if (!contentDiv) return;
 
@@ -1289,14 +1289,14 @@ async function viewLaporanDetail(id) {
 // DELETE REPORT: Menghapus laporan kejadian dari server
 async function deleteLaporan(id) {
     if (!confirm('Apakah Anda yakin ingin membatalkan/menghapus laporan kejadian ini?')) return;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/laporan-kejadian/${id}`, {
             method: 'DELETE'
         });
-        
+
         if (!response.ok) throw new Error('Gagal menghapus laporan kejadian dari server');
-        
+
         fetchLaporan();
         alert('Laporan kejadian berhasil dihapus/dibatalkan.');
     } catch (error) {
@@ -1312,7 +1312,7 @@ async function deleteLaporan(id) {
    ========================================================================== */
 function handleGlobalSearch(e) {
     const query = e.target.value.toLowerCase();
-    
+
     // Cari di tabel donasi barang
     const donasiRows = document.querySelectorAll('#tbody-donasi tr');
     donasiRows.forEach(row => {
@@ -1365,7 +1365,7 @@ function handleGlobalSearch(e) {
 // Helper untuk menghindari serangan XSS
 function escapeHTML(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, 
+    return str.replace(/[&<>'"]/g,
         tag => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -1412,7 +1412,7 @@ function initMap() {
     // 1. GOR Tri Lomba Juang
     L.marker([-6.9897, 110.4207]).addTo(map)
         .bindPopup('<b>Posko 1: GOR Tri Lomba Juang</b><br>Kapasitas: 142 Slot tersisa.<br>Status: Normal');
-    
+
     // 2. Masjid Agung Jawa Tengah (MAJT)
     L.marker([-6.9839, 110.4455]).addTo(map)
         .bindPopup('<b>Posko 2: Masjid Agung Jawa Tengah</b><br>Kapasitas: 300+ Slot tersisa.<br>Status: Leluasa');
@@ -1502,7 +1502,7 @@ function updateGpsMarker(lat, lng, accuracy) {
 
         userGpsMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map)
             .bindPopup('<b>Lokasi Anda Saat Ini</b>');
-        
+
         userGpsCircle = L.circle([lat, lng], {
             radius: accuracy,
             color: '#00D2FF',
@@ -1524,7 +1524,7 @@ function focusOnUserLocation() {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 const accuracy = position.coords.accuracy;
-                
+
                 updateGpsMarker(lat, lng, accuracy);
                 map.setView([lat, lng], 16, { animate: true });
             },
@@ -1640,7 +1640,7 @@ function renderLogistikLengkap(query = '', priorityFilter = '') {
 
     filteredList.forEach(item => {
         const tr = document.createElement('tr');
-        
+
         let priorityClass = 'status-success'; // Selesai
         if (item.prioritas === 'Kritis') priorityClass = 'status-danger';
         else if (item.prioritas === 'Tinggi') priorityClass = 'status-warning';
