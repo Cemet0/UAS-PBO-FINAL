@@ -233,7 +233,7 @@ Semua endpoint berada di bawah `http://localhost:8080/api/` dengan CORS `*`.
 
 ## EmberBot Chatbot
 
-EmberBot adalah chatbot widget yang menggunakan LLM untuk merespons pertanyaan seputar bencana, posko, dan logistik.
+EmberBot adalah chatbot widget yang menggunakan LLM untuk merespons pertanyaan seputar bencana, posko, dan logistik. Chatbot berjalan **langsung dari browser** (frontend), bukan dari backend.
 
 ### Konfigurasi
 
@@ -245,17 +245,58 @@ Buka `frontend/config.js` dan atur:
 | `GITHUB_MODEL` | Model LLM (default: `llama3.2`) |
 | `GITHUB_API_URL` | Endpoint API (default: `http://localhost:11434/v1/chat/completions`) |
 
-### Opsi 1: Ollama Lokal (Gratis)
+### Opsi 1: Ollama Lokal (Gratis / Offline)
+
+#### 1. Install & Download Model
 
 ```bash
-# Install Ollama: https://ollama.com/
+# Download & install dari https://ollama.com/
+# Lalu pull model:
 ollama pull llama3.2
-ollama serve  # Jalankan di port 11434
 ```
+
+#### 2. Izinkan CORS (Wajib!)
+
+Karena frontend dipanggil dari browser (origin berbeda), Ollama harus diizinkan:
+
+**Windows:**
+- Buka **System Properties** → **Environment Variables**
+- Tambah **User Variable** baru:
+  - Name: `OLLAMA_ORIGINS`
+  - Value: `*`
+- Restart Ollama (system tray → Quit, lalu jalankan lagi)
+
+**Mac / Linux:**
+```bash
+export OLLAMA_ORIGINS=*
+ollama serve
+```
+
+#### 3. Jalankan Ollama
+
+```bash
+ollama serve
+```
+
+Cek di browser: `http://localhost:11434` — harus muncul `Ollama is running`.
+
+#### 4. Buka Frontend
+
+Jangan buka `index.html` langsung (`file://`). Gunakan **live server**:
+
+| Cara | Perintah |
+|---|---|
+| VS Code | Install "Live Server" → klik kanan `index.html` → Open with Live Server |
+| Python | `python -m http.server 5500` di folder `frontend/` lalu buka `http://localhost:5500` |
+| Node.js | `npx serve frontend/` |
+
+#### 5. Test Chatbot
+
+Klik ikon chatbot di pojok kanan bawah, ketik pesan. EmberBot akan merespons menggunakan model llama3.2 lokal.
 
 ### Opsi 2: GitHub Models API
 
-Dapatkan token dari [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens) dan set `GITHUB_TOKEN` di `config.js`.
+Dapatkan token dari [GitHub Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens) dan set `GITHUB_TOKEN` di `frontend/config.js`.
 
 ---
 
@@ -268,7 +309,9 @@ Dapatkan token dari [GitHub Settings > Developer settings > Personal access toke
 | **Frontend tidak bisa fetch API** | Pastikan backend sudah running di `localhost:8080`. Sesuaikan `API_BASE_URL` di `config.js` jika pakai port berbeda |
 | **H2 Console error "Database not found"** | Gunakan JDBC URL: `jdbc:h2:mem:emberlorddb` |
 | **Foto tidak terupload** | Periksa ukuran file (max 15MB). Format yang didukung: JPG, PNG |
-| **Chatbot tidak merespons** | Pastikan Ollama sudah jalan (`ollama serve`) atau set `GITHUB_TOKEN` yang valid |
+| **Chatbot tidak merespons** | Pastikan Ollama sudah jalan (`ollama serve`), set `OLLAMA_ORIGINS=*`, dan buka frontend via live server (bukan `file://`) |
+| **Chatbot error CORS** | Set environment variable `OLLAMA_ORIGINS=*` lalu restart Ollama |
+| **Chatbot error "Authorization"** | Biarkan `GITHUB_TOKEN` kosong di `config.js` jika pakai Ollama lokal |
 
 ---
 
