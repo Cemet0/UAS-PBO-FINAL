@@ -856,10 +856,18 @@ function initChatbot() {
         }
     });
 
-    // ── Konfigurasi GitHub Models (lihat config.js) ───────────────────────
-    const GITHUB_TOKEN   = (typeof CONFIG !== 'undefined') ? CONFIG.GITHUB_TOKEN : "";
-    const GITHUB_MODEL   = (typeof CONFIG !== 'undefined') ? CONFIG.GITHUB_MODEL : "llama3.2";
-    const GITHUB_API_URL = (typeof CONFIG !== 'undefined') ? CONFIG.GITHUB_API_URL : "http://localhost:11434/v1/chat/completions";
+    // ── Konfigurasi LLM Provider (lihat config.js) ────────────────────────
+    const CFG = typeof CONFIG !== 'undefined' ? CONFIG : {};
+    const LLM_PROVIDER  = CFG.LLM_PROVIDER || 'ollama';
+    const OLLAMA_MODEL  = CFG.OLLAMA_MODEL || 'llama3.2';
+    const OLLAMA_URL    = CFG.OLLAMA_API_URL || 'http://localhost:11434/v1/chat/completions';
+    const OPENAI_KEY    = CFG.OPENAI_API_KEY || '';
+    const OPENAI_MODEL  = CFG.OPENAI_MODEL || 'gpt-4o-mini';
+    const GEMINI_KEY    = CFG.GEMINI_API_KEY || '';
+    const GEMINI_MODEL  = CFG.GEMINI_MODEL || 'gemini-2.0-flash';
+    const GITHUB_TOKEN  = CFG.GITHUB_TOKEN || '';
+    const GITHUB_MODEL  = CFG.GITHUB_MODEL || 'gpt-4o-mini';
+    const GITHUB_URL    = CFG.GITHUB_API_URL || 'https://models.inference.ai.azure.com/chat/completions';
 
     const SYSTEM_PROMPT = `Kamu adalah EmberBot, asisten AI resmi aplikasi EmberLord — platform respons bencana darurat.
 Tugasmu membantu korban bencana, relawan, dan donatur dengan informasi yang akurat, cepat, dan empatik.
@@ -875,7 +883,7 @@ Jawab dalam Bahasa Indonesia yang ramah, jelas, dan ringkas.`;
     // Riwayat percakapan untuk konteks multi-turn
     let chatHistory = [];
 
-    // Kirim pesan ke GitHub Models API
+    // Kirim pesan ke LLM berdasarkan provider yang dipilih
     async function sendChatMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
@@ -888,34 +896,70 @@ Jawab dalam Bahasa Indonesia yang ramah, jelas, dan ringkas.`;
         const typingId = appendTypingIndicator();
         messagesBody.scrollTop = messagesBody.scrollHeight;
 
-        // Tambah pesan user ke riwayat
         chatHistory.push({ role: "user", content: text });
 
         try {
-            const response = await fetch(GITHUB_API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${GITHUB_TOKEN}`
-                },
-                body: JSON.stringify({
-                    model: GITHUB_MODEL,
-                    messages: [
-                        { role: "system", content: SYSTEM_PROMPT },
-                        ...chatHistory
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 512
-                })
-            });
+            let balasan;
 
-            if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                throw new Error(err.error?.message || `HTTP ${response.status}`);
+            if (LLM_PROVIDER === 'gemini') {
+                // ── Google Gemini ──────────────────────────────────────────
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
+                const messages = chatHistory.map(m => ({
+                    role: m.role === 'assistant' ? 'model' : 'user',
+                    parts: [{ text: m.content }]
+                }));
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: messages,
+                        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error?.message || `HTTP ${res.status}`);
+                }
+                const data = await res.json();
+                balasan = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            } else {
+                // ── OpenAI-compatible (Ollama, OpenAI, GitHub) ─────────────
+                let url, token, model;
+                if (LLM_PROVIDER === 'openai') {
+                    url = 'https://api.openai.com/v1/chat/completions';
+                    token = OPENAI_KEY;
+                    model = OPENAI_MODEL;
+                } else if (LLM_PROVIDER === 'github') {
+                    url = GITHUB_URL;
+                    token = GITHUB_TOKEN;
+                    model = GITHUB_MODEL;
+                } else {
+                    url = OLLAMA_URL;
+                    token = '';
+                    model = OLLAMA_MODEL;
+                }
+                const headers = { "Content-Type": "application/json" };
+                if (token) headers["Authorization"] = `Bearer ${token}`;
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        model,
+                        messages: [
+                            { role: "system", content: SYSTEM_PROMPT },
+                            ...chatHistory
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 512
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error?.message || `HTTP ${res.status}`);
+                }
+                const data = await res.json();
+                balasan = data.choices?.[0]?.message?.content || '';
             }
-
-            const data = await response.json();
-            const balasan = data.choices[0].message.content;
 
             // Simpan balasan ke riwayat (max 20 pesan terakhir)
             chatHistory.push({ role: "assistant", content: balasan });
@@ -927,7 +971,7 @@ Jawab dalam Bahasa Indonesia yang ramah, jelas, dan ringkas.`;
         } catch (error) {
             console.error('EmberBot error:', error);
             removeTypingIndicator(typingId);
-            appendMessage('bot', `⚠️ EmberBot gangguan: <b>${error.message}</b>.<br>Pastikan token GitHub sudah benar.`);
+            appendMessage('bot', `⚠️ EmberBot gangguan: <b>${error.message}</b>.<br>Periksa konfigurasi provider ${LLM_PROVIDER}.`);
         } finally {
             chatInput.disabled = false;
             sendBtn.disabled = false;
