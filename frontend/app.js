@@ -87,6 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners untuk Filter & Search tabel Donasi Dana
     document.getElementById('search-donasi-dana-nama').addEventListener('input', applyDonasiDanaFilters);
     document.getElementById('filter-donasi-dana-status').addEventListener('change', applyDonasiDanaFilters);
+
+    // Event listeners tombol Ekspor PDF
+    document.getElementById('btn-export-pdf-donasi').addEventListener('click', exportPdfDonasiBarang);
+    document.getElementById('btn-export-pdf-donasi-dana').addEventListener('click', exportPdfDonasiDana);
+    document.getElementById('btn-export-pdf-korban').addEventListener('click', exportPdfKorban);
 });
 
 /* ==========================================================================
@@ -1660,4 +1665,142 @@ function renderLogistikLengkap(query = '', priorityFilter = '') {
         `;
         tbody.appendChild(tr);
     });
+}
+
+/* ==========================================================================
+   EKSPOR PDF — Menggunakan jsPDF + AutoTable
+   ========================================================================== */
+
+/**
+ * Helper: membuat dokumen jsPDF dengan header standar EmberLord.
+ * @param {string} judul - Judul laporan yang ditampilkan di PDF.
+ * @returns {{ doc: jsPDF, startY: number }}
+ */
+function _buatDokumenPDF(judul) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const now = new Date();
+    const tanggal = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const waktu = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+    // Header merah EmberLord
+    doc.setFillColor(220, 38, 38);
+    doc.rect(0, 0, pageWidth, 22, 'F');
+
+    // Judul di header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text('EMBERLORD — PORTAL LOGISTIK & RESPONS BENCANA', pageWidth / 2, 10, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(judul.toUpperCase(), pageWidth / 2, 17, { align: 'center' });
+
+    // Sub-header: tanggal & waktu cetak
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`Dicetak: ${tanggal}, ${waktu}`, 14, 28);
+
+    return { doc, startY: 32 };
+}
+
+/**
+ * Ekspor tabel Donasi Barang ke PDF.
+ */
+function exportPdfDonasiBarang() {
+    if (!listDonasiBarang || listDonasiBarang.length === 0) {
+        alert('Tidak ada data donasi barang untuk diekspor.');
+        return;
+    }
+
+    const { doc, startY } = _buatDokumenPDF('Laporan Tabel Donasi Barang');
+
+    const head = [['ID Donasi', 'Nama Donatur', 'Jenis Barang', 'Jumlah', 'Status Pengiriman']];
+    const body = listDonasiBarang.map(d => [
+        d.id ?? '-',
+        d.namaDonatur ?? '-',
+        d.jenisBarang ?? '-',
+        d.jumlah ?? '-',
+        d.statusPengiriman ?? '-'
+    ]);
+
+    doc.autoTable({
+        head,
+        body,
+        startY,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 14, right: 14 }
+    });
+
+    doc.save(`EmberLord_Donasi_Barang_${Date.now()}.pdf`);
+}
+
+/**
+ * Ekspor tabel Donasi Dana Tunai ke PDF.
+ */
+function exportPdfDonasiDana() {
+    if (!listDonasiDana || listDonasiDana.length === 0) {
+        alert('Tidak ada data donasi dana untuk diekspor.');
+        return;
+    }
+
+    const { doc, startY } = _buatDokumenPDF('Laporan Tabel Donasi Dana Tunai');
+
+    const head = [['ID Donasi', 'Nama Donatur', 'Nominal (Rp)', 'Metode Pembayaran', 'Status Transaksi']];
+    const body = listDonasiDana.map(d => [
+        d.id ?? '-',
+        d.namaDonatur ?? '-',
+        d.nominal != null ? Number(d.nominal).toLocaleString('id-ID') : '-',
+        d.metodePembayaran ?? '-',
+        d.statusTransaksi ?? '-'
+    ]);
+
+    doc.autoTable({
+        head,
+        body,
+        startY,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 14, right: 14 }
+    });
+
+    doc.save(`EmberLord_Donasi_Dana_${Date.now()}.pdf`);
+}
+
+/**
+ * Ekspor tabel Korban Terdaftar ke PDF.
+ */
+function exportPdfKorban() {
+    if (!listKorban || listKorban.length === 0) {
+        alert('Tidak ada data korban untuk diekspor.');
+        return;
+    }
+
+    const { doc, startY } = _buatDokumenPDF('Laporan Profil Korban Terdaftar');
+
+    const head = [['ID', 'Nama Korban', 'Usia', 'Kelompok Rentan', 'Kondisi Kesehatan', 'Alamat / Lokasi']];
+    const body = listKorban.map(k => [
+        k.id ?? '-',
+        k.namaKorban ?? '-',
+        k.usia != null ? `${k.usia} thn` : '-',
+        k.kelompokRentan ?? '-',
+        k.kondisiKesehatan ?? '-',
+        k.alamat ?? '-'
+    ]);
+
+    doc.autoTable({
+        head,
+        body,
+        startY,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 14, right: 14 }
+    });
+
+    doc.save(`EmberLord_Korban_${Date.now()}.pdf`);
 }

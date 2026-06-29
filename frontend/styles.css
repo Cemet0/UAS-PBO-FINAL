@@ -2119,4 +2119,46 @@ textarea:focus {
     }
 }
 
+/* ==========================================================================
+   TOMBOL EKSPOR PDF
+   ========================================================================== */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
 
+.btn-export-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.btn-export-pdf:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.55);
+    transform: translateY(-1px);
+}
+
+.btn-export-pdf:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+}
+
+.btn-export-pdf i {
+    font-size: 0.85rem;
+}

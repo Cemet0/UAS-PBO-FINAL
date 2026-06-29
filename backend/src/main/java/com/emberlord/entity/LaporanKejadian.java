@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -34,7 +34,7 @@ public class LaporanKejadian {
 
     private String statusLaporan;
 
-    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String foto; // Menyimpan string Base64 gambar
 
     // Konstruktor Default

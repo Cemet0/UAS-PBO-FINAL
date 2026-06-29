@@ -17,6 +17,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF + AutoTable untuk Ekspor PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
@@ -471,6 +474,7 @@
                                 <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan
                                     Donasi Barang </h3>
                                 <div class="header-actions">
+                                    <button class="btn-export-pdf" id="btn-export-pdf-donasi"><i class="fa-solid fa-file-pdf"></i> Ekspor PDF</button>
                                     <button class="btn-refresh" id="btn-refresh-donasi"><i
                                             class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
                                 </div>
@@ -521,6 +525,7 @@
                                 <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Tabel Pelacakan
                                     Donasi Dana Tunai </h3>
                                 <div class="header-actions">
+                                    <button class="btn-export-pdf" id="btn-export-pdf-donasi-dana"><i class="fa-solid fa-file-pdf"></i> Ekspor PDF</button>
                                     <button class="btn-refresh" id="btn-refresh-donasi-dana"><i
                                             class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
                                 </div>
@@ -765,8 +770,11 @@
                     <div class="card-component mt-4">
                         <div class="card-header justify-between">
                             <h3 class="card-title"><i class="fa-solid fa-users"></i> Profil Korban Terdaftar </h3>
-                            <button class="btn-refresh" id="btn-refresh-korban"><i
-                                    class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                            <div class="header-actions">
+                                <button class="btn-export-pdf" id="btn-export-pdf-korban"><i class="fa-solid fa-file-pdf"></i> Ekspor PDF</button>
+                                <button class="btn-refresh" id="btn-refresh-korban"><i
+                                        class="fa-solid fa-arrows-rotate"></i> Muat Ulang</button>
+                            </div>
                         </div>
                         <!-- Kontrol Filter, Search & Ekspor Korban -->
                         <div class="table-controls-row">

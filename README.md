@@ -1,6 +1,6 @@
 # EmberLord Emergency Portal
 
-**EmberLord** adalah portal taktis manajemen logistik, tanggap darurat, dan koordinasi bantuan kebencanaan secara _real-time_. Dengan tampilan antarmuka bertema gelap (_tactical dark mode_) yang premium dan dinamis, aplikasi ini mengintegrasikan frontend berbasis _Single Page Application (SPA)_ dengan backend REST API Java Spring Boot, JPA, dan basis data H2.
+**EmberLord** adalah portal taktis manajemen logistik, tanggap darurat, dan koordinasi bantuan kebencanaan secara _real-time_. Dengan tampilan antarmuka bertema gelap (_tactical dark mode_) yang premium dan dinamis, aplikasi ini mengintegrasikan frontend berbasis _Single Page Application (SPA)_ dengan backend REST API Java Spring Boot, JPA, dan basis data MySQL.
 
 ---
 
@@ -24,83 +24,96 @@ Sebelum menjalankan aplikasi, pastikan lingkungan Anda memiliki:
 
 - **Java 17+** — [Download JDK 17](https://adoptium.net/)
 - **Maven 3.8+** — [Download Maven](https://maven.apache.org/download.cgi)
+- **MySQL Server** (atau DBMS MySQL seperti Laragon / XAMPP)
 - **Browser modern** (Chrome, Firefox, Edge)
-- **(Opsional) Ollama** — untuk menjalankan EmberBot chatbot secara lokal ([Download Ollama](https://ollama.com/))
+- **(Opsional) LLM Provider** — Salah satu dari:
+  - **Ollama** untuk berjalan secara lokal/offline ([Download Ollama](https://ollama.com/))
+  - **Google Gemini API Key**
+  - **OpenAI API Key**
+  - **GitHub Personal Access Token** (untuk GitHub Models API)
 
 ---
 
 ## Konfigurasi Environment (.env)
 
-Aplikasi ini mendukung konfigurasi melalui _environment variables_. Backend Spring Boot membaca variabel dari environment sistem, sedangkan frontend menggunakan berkas `config.js`.
+Aplikasi ini menggunakan integrasi dinamis di mana backend Spring Boot akan membaca berkas `.env` saat dijalankan, lalu menyajikan konfigurasi tersebut secara aman ke frontend melalui endpoint `/api/env-config.js`.
 
-### 1. Backend
+### 1. Salin dan Sesuaikan `.env`
 
-Salin `.env.example` ke `.env` di **root proyek** lalu sesuaikan:
+Salin `.env.example` ke `.env` di **root proyek** lalu sesuaikan nilainya:
 
 ```bash
 cp .env.example .env
 ```
 
-Spring Boot secara otomatis membaca variabel dari environment. Jika tidak ada `.env`, nilai _default_ akan digunakan (H2 in-memory di port 8080).
+### Variabel yang Tersedia di `.env`
 
-### 2. Frontend
-
-Buka `frontend/config.js` dan sesuaikan nilai `API_BASE_URL`, `GITHUB_TOKEN`, dll. sesuai lingkungan Anda.
-
-> **Catatan:** `frontend/config.js` sudah ter-track git. Untuk konfigurasi lokal, buat `frontend/config.local.js` dan load manual.
-
-### Variabel yang Tersedia
-
-| Variabel | Default | Deskripsi |
-|---|---|---|
-| `SERVER_PORT` | `8080` | Port backend Spring Boot |
-| `SPRING_DATASOURCE_URL` | `jdbc:h2:mem:emberlorddb` | JDBC URL database |
-| `SPRING_DATASOURCE_USERNAME` | `sa` | Username database |
-| `SPRING_DATASOURCE_PASSWORD` | _(kosong)_ | Password database |
-| `SPRING_JPA_DDL_AUTO` | `update` | Mode DDL Hibernate |
-| `SPRING_JPA_SHOW_SQL` | `true` | Tampilkan query SQL di log |
-| `SPRING_H2_CONSOLE_ENABLED` | `true` | Aktifkan H2 web console |
-| `MAX_FILE_SIZE` | `15MB` | Maksimal ukuran file upload |
-| `MAX_REQUEST_SIZE` | `15MB` | Maksimal ukuran request |
-| `GITHUB_TOKEN` | _(kosong)_ | Token API untuk chatbot (GitHub/Ollama) |
-| `GITHUB_MODEL` | `llama3.2` | Model LLM untuk chatbot |
-| `GITHUB_API_URL` | `http://localhost:11434/v1/chat/completions` | Endpoint API LLM |
-| `API_BASE_URL` _(frontend)_ | `http://localhost:8080/api` | Base URL REST API backend |
+| Kategori | Variabel | Default | Deskripsi |
+|---|---|---|---|
+| **Server** | `SERVER_PORT` | `8080` | Port backend Spring Boot |
+| **Database** | `SPRING_DATASOURCE_URL` | `jdbc:mysql://localhost:3306/db_emberlord?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true` | JDBC URL database MySQL |
+| | `SPRING_DATASOURCE_USERNAME` | `root` | Username database |
+| | `SPRING_DATASOURCE_PASSWORD` | _(kosong)_ | Password database |
+| **JPA / DDL** | `SPRING_JPA_DDL_AUTO` | `update` | Mode DDL Hibernate |
+| | `SPRING_JPA_SHOW_SQL` | `true` | Tampilkan query SQL di log |
+| **Upload** | `MAX_FILE_SIZE` | `15MB` | Maksimal ukuran file upload laporan |
+| | `MAX_REQUEST_SIZE` | `15MB` | Maksimal ukuran request payload |
+| **Chatbot** | `LLM_PROVIDER` | `ollama` | Provider LLM (`ollama` \| `openai` \| `gemini` \| `github`) |
+| | `OLLAMA_API_URL` | `http://localhost:11434/v1/chat/completions` | Endpoint API Ollama lokal |
+| | `OLLAMA_MODEL` | `llama3.2` | Model Ollama yang digunakan |
+| | `OPENAI_API_KEY` | _(kosong)_ | API Key untuk OpenAI |
+| | `OPENAI_MODEL` | `gpt-4o-mini` | Model OpenAI yang digunakan |
+| | `GEMINI_API_KEY` | _(kosong)_ | API Key untuk Google Gemini |
+| | `GEMINI_MODEL` | `gemini-2.5-flash` | Model Gemini yang digunakan |
+| | `GITHUB_TOKEN` | _(kosong)_ | Token API untuk GitHub Models |
+| | `GITHUB_MODEL` | `gpt-4o-mini` | Model GitHub yang digunakan |
+| | `GITHUB_API_URL` | `https://models.inference.ai.azure.com/...` | Endpoint API GitHub Models |
+| **Frontend** | `API_BASE_URL` | `http://localhost:8080/api` | Base URL REST API backend |
 
 ---
 
 ## Cara Menjalankan Aplikasi
 
-### Langkah 1: Jalankan Server Backend (Spring Boot)
+### Langkah 1: Persiapan Database MySQL
+
+Pastikan MySQL Server Anda aktif dan buat database baru bernama `db_emberlord`:
+
+```sql
+CREATE DATABASE db_emberlord;
+```
+
+### Langkah 2: Jalankan Server Backend (Spring Boot)
+
+Buka terminal di root proyek, masuk ke direktori backend, lalu jalankan Maven:
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Atau jalankan dari IDE (VS Code / IntelliJ) dengan membuka `backend/src/main/java/com/emberlord/EmberLordApplication.java` lalu klik tombol **Run**.
+Atau buka proyek di IDE (VS Code / IntelliJ) dan jalankan kelas utama `com.emberlord.EmberLordApplication`.
 
-Backend akan aktif di **`http://localhost:8080`**.
+Backend akan aktif di **`http://localhost:8080`** (atau port lain sesuai variabel `SERVER_PORT`).
 
-### Langkah 2: Buka Antarmuka Frontend
+### Langkah 3: Buka Antarmuka Frontend
 
-Buka `frontend/index.html` di browser Anda.
 
-Untuk pengalaman terbaik, gunakan **Live Server** di VS Code (klik kanan `index.html` > **Open with Live Server**) atau jalankan server statis:
+Frontend berupa *Single Page Application* statis. Buka `frontend/index.html` menggunakan server lokal untuk menghindari isu pemuatan resource.
+
+Sangat direkomendasikan menggunakan **Live Server** di VS Code (klik kanan `index.html` > **Open with Live Server**) atau jalankan melalui Python/Node.js di direktori `frontend`:
 
 ```bash
-cd frontend && python3 -m http.server 5500
+# Menggunakan Python
+cd frontend
+python -m http.server 5500
+
+# Menggunakan Node.js (npx)
+cd frontend
+npx serve .
 ```
 
-Lalu buka **`http://localhost:5500`** di browser.
+Akses aplikasi di browser melalui **`http://localhost:5500`** atau port yang diberikan.
 
-### Akses H2 Console
-
-Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
-
-- **JDBC URL:** `jdbc:h2:mem:emberlorddb`
-- **Username:** `sa`
-- **Password:** _(kosongkan)_
 
 ---
 
@@ -113,7 +126,8 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 
 ### 2. Portal Donasi Terbuka
 - **Donasi Barang Fisik**: Registrasi komitmen donasi logistik, pelacakan status pengiriman (_Pending, Dikirim, Diterima, Diproses_), pencarian cepat & CRUD terintegrasi.
-- **Donasi Dana Tunai**: Form input donasi, pencatatan peruntukan dana, nomor rekening/HP pengirim. **Buku Kas Digital** — saldo kas total ter-update otomatis saat status transaksi **Berhasil** (_Verified_).
+- **Donasi Dana Tunai**: Form input donasi, pencatatan peruntukan dana, nomor rekening/HP pengirim.
+- **Buku Kas Digital**: Saldo kas total ter-update otomatis saat status transaksi **Berhasil** (_Verified_).
 
 ### 3. Pusat Pemulihan Dokumen Korban
 - **Wizard Pendaftaran Profil Korban**: Perekaman identitas (Nama, NIK, No. KK, Alamat Asal, Kelompok Rentan, Status Rumah).
@@ -127,6 +141,7 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 
 ### 5. EmberBot Chatbot Widget
 - AI chatbot taktis di pojok kanan bawah untuk informasi posko terdekat, logistik, prosedur dokumen, dan tips keselamatan.
+- Mendukung integrasi dinamis dengan **Ollama**, **Google Gemini**, **OpenAI**, dan **GitHub Models**.
 
 ---
 
@@ -135,9 +150,9 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 ### Backend
 | Teknologi | Keterangan |
 |---|---|
-| **Java 17 / Spring Boot 3.2.5** | Framework REST API modular |
+| **Java 17 / Spring Boot 3.2+** | Framework REST API modular |
 | **Spring Data JPA & Hibernate** | ORM ke basis data |
-| **H2 Database** | Basis data in-memory (_development_) |
+| **MySQL Database** | Basis data relasional utama |
 | **Maven** | Manajemen dependensi |
 
 ### Frontend
@@ -147,6 +162,7 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 | **Vanilla JavaScript (ES6)** | State global, DOM manipulation, SPA router, Fetch API |
 | **Leaflet.js** | Peta interaktif |
 | **FontAwesome** | Paket ikon |
+| **jsPDF & AutoTable** | Ekspor laporan PDF |
 
 ---
 
@@ -154,6 +170,7 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 
 ```
 ├── .env.example              # Contoh konfigurasi environment
+├── .env                      # File konfigurasi lokal (di-ignore oleh git)
 ├── .gitignore
 ├── README.md
 │
@@ -162,11 +179,13 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 │   └── src/main/
 │       ├── java/com/emberlord/
 │       │   ├── EmberLordApplication.java
-│       │   ├── controller/       # REST Controllers
-│       │   │   ├── DonasiController.java
-│       │   │   ├── DonasiDanaController.java
-│       │   │   ├── KorbanController.java
-│       │   │   └── LaporanKejadianController.java
+│       │   ├── controller/       # REST & Config Controllers
+│       │   │   ├── ConfigController.java         # Endpoint konfigurasi dinamis
+│       │   │   ├── DonasiController.java         # Donasi Barang
+│       │   │   ├── DonasiDanaController.java     # Donasi Dana & Buku Kas
+│       │   │   ├── GlobalExceptionHandler.java   # Exception Handler global
+│       │   │   ├── KorbanController.java         # Pemulihan Dokumen/Korban
+│       │   │   └── LaporanKejadianController.java # Laporan Kejadian / SOS
 │       │   ├── entity/           # JPA Entities
 │       │   │   ├── DonasiBarang.java
 │       │   │   ├── DonasiDana.java
@@ -182,9 +201,9 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 │
 └── frontend/                 # Frontend SPA
     ├── index.html
-    ├── config.js             # Konfigurasi frontend (API URL, Chatbot)
-    ├── app.js                # Logika utama SPA
-    └── styles.css            # Tema tactical dark mode
+    ├── config.js             # Konfigurasi frontend default
+    ├── app.js                # Logika utama SPA & Integrasi API / Chatbot
+    └── styles.css            # Tema tactical dark mode & tata letak
 ```
 
 ---
@@ -192,6 +211,11 @@ Setelah backend berjalan, buka **`http://localhost:8080/h2-console`** dengan:
 ## API Endpoints
 
 Semua endpoint berada di bawah `http://localhost:8080/api/` dengan CORS `*`.
+
+### Konfigurasi Dinamis
+| Method | Endpoint | Deskripsi |
+|---|---|---|
+| `GET` | `/api/env-config.js` | Mengambil konfigurasi environment dari `.env` backend dalam format JavaScript untuk dioverride ke frontend secara otomatis |
 
 ### Donasi Barang (`/api/donasi`)
 | Method | Endpoint | Deskripsi |
@@ -233,70 +257,58 @@ Semua endpoint berada di bawah `http://localhost:8080/api/` dengan CORS `*`.
 
 ## EmberBot Chatbot
 
-EmberBot adalah chatbot widget yang menggunakan LLM untuk merespons pertanyaan seputar bencana, posko, dan logistik. Chatbot berjalan **langsung dari browser** (frontend), bukan dari backend.
+EmberBot berjalan langsung di sisi frontend, namun konfigurasinya dinamis disuntikkan dari backend `.env`. Di bawah ini adalah langkah persiapan masing-masing provider:
 
-### Konfigurasi
+### Opsi 1: Ollama Lokal (Gratis & Offline)
+1. **Instal Ollama**: Unduh dari [ollama.com](https://ollama.com/).
+2. **Download Model**: Jalankan perintah berikut di terminal:
+   ```bash
+   ollama pull llama3.2
+   ```
+3. **Izinkan CORS**: Karena frontend dipanggil dari browser (port/origin berbeda), CORS Ollama harus diizinkan:
+   * **Windows**:
+     * Buka **System Properties** → **Environment Variables**.
+     * Tambah **User/System Variable** baru: `OLLAMA_ORIGINS` dengan nilai `*`.
+     * Restart Ollama dari system tray (Quit lalu jalankan lagi).
+   * **Mac / Linux**:
+     ```bash
+     export OLLAMA_ORIGINS=*
+     ollama serve
+     ```
+4. Set variabel di `.env`:
+   ```properties
+   LLM_PROVIDER=ollama
+   OLLAMA_API_URL=http://localhost:11434/v1/chat/completions
+   OLLAMA_MODEL=llama3.2
+   ```
 
-Buka `frontend/config.js` dan atur:
+### Opsi 2: Google Gemini (Online)
+1. Dapatkan API Key Gemini.
+2. Set variabel di `.env`:
+   ```properties
+   LLM_PROVIDER=gemini
+   GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+   GEMINI_MODEL=gemini-2.5-flash
+   ```
 
-| Variabel | Deskripsi |
-|---|---|
-| `GITHUB_TOKEN` | Token API (biarkan kosong jika pakai Ollama lokal) |
-| `GITHUB_MODEL` | Model LLM (default: `llama3.2`) |
-| `GITHUB_API_URL` | Endpoint API (default: `http://localhost:11434/v1/chat/completions`) |
+### Opsi 3: OpenAI (Online)
+1. Dapatkan API Key OpenAI.
+2. Set variabel di `.env`:
+   ```properties
+   LLM_PROVIDER=openai
+   OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+   OPENAI_MODEL=gpt-4o-mini
+   ```
 
-### Opsi 1: Ollama Lokal (Gratis / Offline)
-
-#### 1. Install & Download Model
-
-```bash
-# Download & install dari https://ollama.com/
-# Lalu pull model:
-ollama pull llama3.2
-```
-
-#### 2. Izinkan CORS (Wajib!)
-
-Karena frontend dipanggil dari browser (origin berbeda), Ollama harus diizinkan:
-
-**Windows:**
-- Buka **System Properties** → **Environment Variables**
-- Tambah **User Variable** baru:
-  - Name: `OLLAMA_ORIGINS`
-  - Value: `*`
-- Restart Ollama (system tray → Quit, lalu jalankan lagi)
-
-**Mac / Linux:**
-```bash
-export OLLAMA_ORIGINS=*
-ollama serve
-```
-
-#### 3. Jalankan Ollama
-
-```bash
-ollama serve
-```
-
-Cek di browser: `http://localhost:11434` — harus muncul `Ollama is running`.
-
-#### 4. Buka Frontend
-
-Jangan buka `index.html` langsung (`file://`). Gunakan **live server**:
-
-| Cara | Perintah |
-|---|---|
-| VS Code | Install "Live Server" → klik kanan `index.html` → Open with Live Server |
-| Python | `python -m http.server 5500` di folder `frontend/` lalu buka `http://localhost:5500` |
-| Node.js | `npx serve frontend/` |
-
-#### 5. Test Chatbot
-
-Klik ikon chatbot di pojok kanan bawah, ketik pesan. EmberBot akan merespons menggunakan model llama3.2 lokal.
-
-### Opsi 2: GitHub Models API
-
-Dapatkan token dari [GitHub Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens) dan set `GITHUB_TOKEN` di `frontend/config.js`.
+### Opsi 4: GitHub Models API (Online)
+1. Dapatkan token dari [GitHub Developer Settings](https://github.com/settings/tokens).
+2. Set variabel di `.env`:
+   ```properties
+   LLM_PROVIDER=github
+   GITHUB_TOKEN=YOUR_GITHUB_PERSONAL_ACCESS_TOKEN
+   GITHUB_MODEL=gpt-4o-mini
+   GITHUB_API_URL=https://models.inference.ai.azure.com/chat/completions
+   ```
 
 ---
 
@@ -304,17 +316,15 @@ Dapatkan token dari [GitHub Settings → Developer settings → Personal access 
 
 | Masalah | Solusi |
 |---|---|
-| **Port 8080 sudah digunakan** | Set `SERVER_PORT=8081` di `.env` |
-| **Backend tidak bisa connect database** | Pastikan Java 17+ sudah terinstal (`java -version`) |
-| **Frontend tidak bisa fetch API** | Pastikan backend sudah running di `localhost:8080`. Sesuaikan `API_BASE_URL` di `config.js` jika pakai port berbeda |
-| **H2 Console error "Database not found"** | Gunakan JDBC URL: `jdbc:h2:mem:emberlorddb` |
-| **Foto tidak terupload** | Periksa ukuran file (max 15MB). Format yang didukung: JPG, PNG |
-| **Chatbot tidak merespons** | Pastikan Ollama sudah jalan (`ollama serve`), set `OLLAMA_ORIGINS=*`, dan buka frontend via live server (bukan `file://`) |
-| **Chatbot error CORS** | Set environment variable `OLLAMA_ORIGINS=*` lalu restart Ollama |
-| **Chatbot error "Authorization"** | Biarkan `GITHUB_TOKEN` kosong di `config.js` jika pakai Ollama lokal |
+| **Port 8080 sudah digunakan** | Sesuaikan port dengan menyetel `SERVER_PORT=8085` (atau port lain) di `.env`. Pastikan frontend memanggil URL backend yang sesuai. |
+| **Koneksi database error / Access Denied** | Pastikan MySQL Server aktif, kredensial (`SPRING_DATASOURCE_USERNAME` dan `SPRING_DATASOURCE_PASSWORD`) di `.env` sudah benar, dan database `db_emberlord` telah dibuat (`CREATE DATABASE db_emberlord;`). |
+| **Foto tidak terupload** | Periksa ukuran file (maksimal 15MB sesuai setting `MAX_FILE_SIZE`). |
+| **Chatbot tidak merespons (Ollama)** | Pastikan Ollama sudah berjalan (`ollama serve`), pastikan environment variable `OLLAMA_ORIGINS=*` sudah aktif, dan buka frontend via live server (bukan `file://`). |
+| **Chatbot API Authorization Error** | Periksa kecocokan API Key/Token di `.env` untuk masing-masing provider yang dipilih. |
 
 ---
 
 ## Lisensi
 
 Proyek ini dikembangkan untuk tujuan edukasi mata kuliah **Pemrograman Berorientasi Objek (PBO)**.
+
